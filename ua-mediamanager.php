@@ -106,7 +106,7 @@ final class UA_MediaManager {
         ?>
         <div class="wrap uamm-wrap">
           <header class="uamm-header"><div><span class="uamm-kicker">UA SERVER · MEDIA TOOLS</span><h1>UA MediaManager <small>2.0.0</small></h1><p><?php esc_html_e('Керуйте файлами, папками та резервними копіями в одному місці.', 'ua-mediamanager'); ?></p></div>
-          <div class="uamm-header-actions"><a class="button button-secondary" href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=uamm_backup'),'uamm_backup')); ?>">↓ <?php esc_html_e('Завантажити всю бібліотеку', 'ua-mediamanager'); ?></a><a class="button button-primary" href="<?php echo esc_url(admin_url('admin.php?page=ua-mediamanager-settings')); ?>"><?php esc_html_e('Налаштування', 'ua-mediamanager'); ?></a></div></header>
+          <div class="uamm-header-actions"><?php if (current_user_can('manage_options')): ?><a class="button button-secondary" href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=uamm_backup'),'uamm_backup')); ?>">↓ <?php esc_html_e('Завантажити всю бібліотеку', 'ua-mediamanager'); ?></a><?php endif; ?><a class="button button-primary" href="<?php echo esc_url(admin_url('admin.php?page=ua-mediamanager-settings')); ?>"><?php esc_html_e('Налаштування', 'ua-mediamanager'); ?></a></div></header>
           <section class="uamm-stats">
             <article><span><?php esc_html_e('Файлів у медіатеці', 'ua-mediamanager'); ?></span><strong><?php echo esc_html(number_format_i18n($stats['count'])); ?></strong></article>
             <article><span><?php esc_html_e('Обсяг папки uploads', 'ua-mediamanager'); ?></span><strong><?php echo esc_html($this->bytes($stats['bytes'])); ?></strong></article>
