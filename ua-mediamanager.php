@@ -200,6 +200,25 @@ final class UA_MediaManager {
             else { if (!wp_delete_attachment($id,true)) wp_send_json_error(array('message'=>__('Не вдалося видалити файл.','ua-mediamanager'))); }
             wp_send_json_success(array('message'=>$action==='restore'?__('Файл відновлено.','ua-mediamanager'):__('Файл остаточно видалено.','ua-mediamanager')));
         }
+        if ($action==='scan_unused') {
+            $this->require_ajax_cap('manage_options');
+            global $wpdb;
+            $attachments=get_posts(array('post_type'=>'attachment','post_status'=>'inherit','numberposts'=>250,'orderby'=>'ID','order'=>'ASC'));
+            $candidates=array();
+            foreach($attachments as $att) {
+                $url=wp_get_attachment_url($att->ID);
+                if (!$url) continue;
+                $like='%'.$wpdb->esc_like($url).'%';
+                $used=(int)$wpdb->get_var($wpdb->prepare("SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_status NOT IN ('trash','auto-draft') AND post_type IN ('post','page','product','wp_block','wp_template','wp_template_part') AND post_content LIKE %s",$like));
+                if (!$used) {
+                    $meta=wp_get_attachment_metadata($att->ID);
+                    $parent=wp_get_post_parent_id($att->ID);
+                    if (!$parent && empty($meta['sizes'])) $candidates[]=array('title'=>get_the_title($att->ID),'url'=>$url);
+                }
+                if (count($candidates)>=50) break;
+            }
+            wp_send_json_success(array('message'=>sprintf(__('Попередньо знайдено кандидатів: %d. Перевірте кожен файл вручну; сканер охоплює лише частину можливих посилань. Перевірено не більше 250 вкладень.','ua-mediamanager'),count($candidates)),'items'=>$candidates));
+        }
         wp_send_json_error(array('message'=>__('Невідома дія.','ua-mediamanager')));
     }
 
