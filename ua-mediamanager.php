@@ -46,7 +46,7 @@ final class UA_MediaManager {
     }
 
     public function admin_menu() {
-        add_menu_page('UA MediaManager', 'UA MediaManager', 'upload_files', 'ua-mediamanager', array($this, 'render_dashboard'), 'dashicons-images-alt2',  ಜೊತೆ 26);
+        add_menu_page('UA MediaManager', 'UA MediaManager', 'upload_files', 'ua-mediamanager', array($this, 'render_dashboard'), 'dashicons-images-alt2', 26);
         add_submenu_page('ua-mediamanager', __('Медіабібліотека', 'ua-mediamanager'), __('Медіабібліотека', 'ua-mediamanager'), 'upload_files', 'ua-mediamanager', array($this, 'render_dashboard'));
         add_submenu_page('ua-mediamanager', __('Карантин', 'ua-mediamanager'), __('Карантин', 'ua-mediamanager'), 'delete_posts', 'ua-mediamanager-quarantine', array($this, 'render_quarantine'));
         add_submenu_page('ua-mediamanager', __('Налаштування', 'ua-mediamanager'), __('Налаштування', 'ua-mediamanager'), 'manage_options', 'ua-mediamanager-settings', array($this, 'render_settings'));
