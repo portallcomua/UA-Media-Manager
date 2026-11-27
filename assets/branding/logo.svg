@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="260" viewBox="0 0 720 260" role="img" aria-labelledby="title desc">
+<title id="title">UA MediaManager</title><desc id="desc">Blue folder and media image shield with Ukrainian yellow accents.</desc>
+<defs>
+ <linearGradient id="folder" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#2495ef"/><stop offset="1" stop-color="#073b83"/></linearGradient>
+ <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffe77b"/><stop offset="1" stop-color="#f2b900"/></linearGradient>
+ <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#12396e"/><stop offset="1" stop-color="#061b3b"/></linearGradient>
+</defs>
+<g transform="translate(22 22)">
+ <path d="M18 54Q18 38 35 38h86l25 22h103q17 0 17 17v106q0 18-18 18H37q-19 0-19-19z" fill="url(#gold)"/>
+ <path d="M18 74q0-17 18-17h85l26 22h101q18 0 18 18v85q0 18-18 18H37q-19 0-19-19z" fill="url(#folder)" stroke="#b9e4ff" stroke-width="4"/>
+ <rect x="58" y="91" width="125" height="92" rx="12" fill="#fff" transform="rotate(-5 120 137)"/>
+ <rect x="68" y="101" width="105" height="72" rx="8" fill="#cceeff" transform="rotate(-5 120 137)"/>
+ <path d="m70 158 30-30 20 19 17-17 31 36H70z" fill="#1879c9"/>
+ <circle cx="145" cy="119" r="9" fill="#f7c62f"/>
+ <path d="M191 115 218 99l27 16v33q0 35-27 49-27-14-27-49z" fill="url(#gold)" stroke="#fff" stroke-width="4"/>
+ <path d="m205 145 10 10 19-23" fill="none" stroke="#08376d" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<g transform="translate(300 74)">
+ <text x="0" y="58" font-family="Arial,Helvetica,sans-serif" font-size="54" font-weight="800" fill="#f3bd18">UA</text>
+ <text x="104" y="58" font-family="Arial,Helvetica,sans-serif" font-size="48" font-weight="800" fill="#103b70">MediaManager</text>
+ <rect x="2" y="79" width="382" height="6" rx="3" fill="url(#gold)"/>
+ <text x="2" y="117" font-family="Arial,Helvetica,sans-serif" font-size="20" fill="#43617e">WordPress Media Library Tools</text>
+</g>
+</svg>
