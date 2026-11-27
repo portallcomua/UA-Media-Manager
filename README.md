@@ -1,40 +1,46 @@
-# UA MediaManager 2.0.0
+# UA MediaManager 2.0.0 — development branch
 
-WordPress media library management interface by UA Server.
+WordPress media library manager by UA Server.
 
-## Install
-1. Download the ZIP archive for the `feature/media-manager-2.0` branch.
-2. In WordPress go to **Plugins → Add New → Upload Plugin**.
-3. Upload the ZIP, install and activate.
-4. Open **UA MediaManager** in the WordPress admin menu.
+## Install test build
+1. Make a full backup of both the database and site files.
+2. Deactivate the previous UA MediaManager version.
+3. Download the ZIP from the `feature/media-manager-2.0` branch.
+4. In WordPress open **Plugins → Add New → Upload Plugin**, upload the ZIP and activate it.
+5. Open **UA MediaManager** in the admin menu.
 
-## Included in this development build
-- Dashboard with attachment count and actual disk usage of the uploads directory.
-- Media grid with previews, search and pagination.
-- Sorting by name, MIME type and date, ascending or descending.
-- Hierarchical virtual folders attached to WordPress media items.
-- Bulk assignment of attachments to folders without changing their physical paths or URLs.
-- Quarantine using the native WordPress Trash API, with restore and permanent deletion.
-- Full uploads directory ZIP download streamed to the browser; temporary ZIP is deleted after transfer.
-- ZIP download of files currently in WordPress media trash.
-- Conservative unused-media candidate scan (limited to 250 attachments per run).
-- Capability checks, AJAX nonce validation and responsive Ukrainian admin UI.
+Branch archive: https://github.com/portallcomua/UA-Media-Manager/archive/refs/heads/feature/media-manager-2.0.zip
 
-## Important limitations of this development build
-This is the first 2.0 development foundation, not the completed feature set.
+## Implemented in this development branch
+- Media dashboard with attachment count and uploads disk usage.
+- Media grid with preview, search, pagination and sorting by title, MIME type and date.
+- WordPress taxonomy-based folder labels and bulk assignment. These folders are currently virtual.
+- Quarantine via WordPress Trash, with restore and permanent delete actions.
+- ZIP download of the uploads directory streamed to the browser; the temporary archive is removed after the response.
+- ZIP download of files in the WordPress media trash.
+- ZIP restore with path traversal checks, a 10,000-file limit, 2 GB uncompressed size limit and no-overwrite behavior.
+- When a restored file matches an attachment in WordPress Trash, the attachment is automatically untrashed.
+- Public GitHub Releases update check. Publish a versioned GitHub Release; preferably attach a correctly packaged `ua-mediamanager.zip` asset.
+- PHP syntax-check workflow for GitHub pushes and pull requests.
+- Capability checks, AJAX nonce checks and responsive admin styles.
 
-- Folders are virtual taxonomy folders. Files are not physically moved and public URLs remain unchanged.
-- The unused scan is heuristic and cannot prove a file is unused. It checks selected post content only and must be followed by manual verification.
-- Quarantine uses WordPress Trash. It does not create a separate isolated filesystem quarantine directory.
-- The quarantine ZIP includes media files found in trash; it is not a full database backup.
-- ZIP archive restore is not implemented yet.
-- Automatic physical folder restructuring, reference rewriting, duplicate detection, image compression/conversion, batch optimization with a progress bar, and full before/after savings reporting are not implemented yet.
-- Freemius licensing and GitHub self-updater are not included yet.
-- No generated image sizes are deleted. This is intentional to avoid breaking WooCommerce, responsive images, themes and page builders.
+## Not yet implemented — do not treat as finished
+The following original requirements remain open:
+- Physical folder creation and hierarchical organization such as `images/blog`, `WooCommerce/images` and `WooCommerce/category`.
+- Physical file move/rename with safe database URL/reference rewriting and rollback.
+- Complete ZIP-to-media-library import on a fresh database. ZIP restore currently restores files and reconnects only matching attachment records already present in Trash; it is not a full WordPress site backup.
+- Reliable unused-media scanner covering page builders, widgets, theme options, WooCommerce, custom fields, CSS and external/plugin storage. Current scan is heuristic only.
+- Duplicate detection by file hash and safe duplicate merge/removal.
+- Lossless image optimization, batch processing, progress reporting and before/after disk-space statistics.
+- Full bilingual Ukrainian/English interface and language auto-detection.
+- Freemius SDK licensing and PRO gating. No license activation is currently required or implemented.
+- Marketing package: final logo, banner, real admin screenshots, product-page copy and Facebook copy.
+- Full compatibility testing against supported WordPress, WooCommerce, Elementor and popular themes.
 
-Before testing on a production website, create a hosting-level backup of both database and files. Test first on staging.
+## Safety
+Do not use this development build for bulk destructive operations on a production site. Test on a staging copy first. Keep a database + files backup outside the website. The unused-media scan is not proof that a file is unused. Never permanently delete a candidate solely because it appears in the scan.
 
 ## Requirements
 - WordPress 6.2+
 - PHP 7.4+
-- PHP ZipArchive extension for ZIP downloads
+- PHP ZipArchive for ZIP backup and restore
