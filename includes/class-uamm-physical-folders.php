@@ -25,7 +25,7 @@ final class UAMM_Physical_Folders {
             UA_MediaManager::instance()->ajax_action();
             return;
         }
-        if (in_array($action, array('optimize_start', 'optimize_step', 'optimizer_status'), true)) {
+        if (in_array($action, array('optimize_start', 'optimize_step', 'optimizer_status', 'scan_duplicates'), true)) {
             if (!current_user_can('manage_options')) wp_send_json_error(array('message' => __('Потрібні права адміністратора.', 'ua-mediamanager')), 403);
             if ($action === 'optimizer_status') self::optimizer_status();
             if ($action === 'scan_duplicates') self::scan_duplicates();
