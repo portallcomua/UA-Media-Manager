@@ -35,5 +35,5 @@ jQuery(function($){
     }).fail(()=>{button.prop('disabled',false).text('Запустити lossless-оптимізацію');});
   });
   function formatBytes(bytes){if(!bytes)return '0 '+(T.bytes||'Б');const units=[T.bytes||'Б',T.kb||'КБ',T.mb||'МБ',T.gb||'ГБ'];let i=0,n=bytes;while(n>=1024&&i<units.length-1){n/=1024;i++;}return n.toFixed(2)+' '+units[i];}
-  function request(action,data){return $.post(UAMM.ajax,Object.assign({action:'uamm_action',do:action,nonce:UAMM.nonce},data)).fail(xhr=>notice(xhr.responseJSON?.data?.message||'Помилка запиту.',true));}
+  function request(action,data){return $.post(UAMM.ajax,Object.assign({action:'uamm_action',do:action,nonce:UAMM.nonce},data)).fail(xhr=>notice(xhr.responseJSON?.data?.message||T.requestError||'Помилка запиту.',true));}
 });
