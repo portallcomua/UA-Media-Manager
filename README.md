@@ -24,6 +24,7 @@ Branch archive: https://github.com/portallcomua/UA-Media-Manager/archive/refs/he
 - ZIP restore with path traversal checks, a 10,000-file limit, 2 GB uncompressed size limit and no-overwrite behavior.
 - When a restored file matches an attachment in WordPress Trash, the attachment is automatically untrashed.
 - Public GitHub Releases update check. Publish a versioned GitHub Release; preferably attach a correctly packaged `ua-mediamanager.zip` asset.
+- Lossless batch optimization is available only when server binaries `jpegoptim`, `optipng` and/or `gifsicle` are installed and PHP `exec` is enabled. Supported JPEG/PNG/GIF files are processed in batches with a progress bar and before/after size summary; unsupported formats are skipped.
 - PHP syntax-check workflow for GitHub pushes and pull requests.
 - Capability checks, AJAX nonce checks and responsive admin styles.
 
@@ -33,8 +34,7 @@ The following original requirements remain open:
 - A full transactional rollback for database write failures and third-party offload/CDN integrations. Physical move currently rolls back filesystem changes if a file collision/move error occurs, but database and third-party custom references still require broader compatibility testing.
 - Full WordPress site restoration (database, attachment IDs, taxonomy assignments and all plugin metadata). ZIP restore imports recognized media files as new attachments on a fresh database and untrashes matching existing attachment records, but it is not a complete site backup.
 - Reliable unused-media scanner covering page builders, widgets, theme options, WooCommerce, custom fields, CSS and external/plugin storage. Current scan is heuristic only.
-- Safe duplicate merge across attachment references. Current SHA-256 scan finds exact duplicates and offers to move candidates to WordPress Trash; it does not automatically merge references.
-- Lossless batch optimization is available only when server binaries `jpegoptim`, `optipng` and/or `gifsicle` are installed and PHP `exec` is enabled. Supported JPEG/PNG/GIF files are processed in batches with a progress bar and before/after size summary; unsupported formats are skipped.
+- Automatic duplicate merging across attachment references. Current SHA-256 scan finds exact duplicates and offers to move candidates to WordPress Trash; it does not automatically merge references.
 - Full bilingual Ukrainian/English interface and language auto-detection.
 - Freemius SDK licensing and PRO gating. No license activation is currently required or implemented.
 - Marketing package: final logo, banner, real admin screenshots, product-page copy and Facebook copy.
