@@ -33,8 +33,8 @@ The following original requirements remain open:
 - A full transactional rollback for database write failures and third-party offload/CDN integrations. Physical move currently rolls back filesystem changes if a file collision/move error occurs, but database and third-party custom references still require broader compatibility testing.
 - Complete ZIP-to-media-library import on a fresh database. ZIP restore currently restores files and reconnects only matching attachment records already present in Trash; it is not a full WordPress site backup.
 - Reliable unused-media scanner covering page builders, widgets, theme options, WooCommerce, custom fields, CSS and external/plugin storage. Current scan is heuristic only.
-- Duplicate detection by file hash and safe duplicate merge/removal.
-- Lossless image optimization, batch processing, progress reporting and before/after disk-space statistics.
+- Safe duplicate merge across attachment references. Current SHA-256 scan finds exact duplicates and offers to move candidates to WordPress Trash; it does not automatically merge references.
+- Lossless batch optimization is available only when server binaries `jpegoptim`, `optipng` and/or `gifsicle` are installed and PHP `exec` is enabled. Supported JPEG/PNG/GIF files are processed in batches with a progress bar and before/after size summary; unsupported formats are skipped.
 - Full bilingual Ukrainian/English interface and language auto-detection.
 - Freemius SDK licensing and PRO gating. No license activation is currently required or implemented.
 - Marketing package: final logo, banner, real admin screenshots, product-page copy and Facebook copy.
