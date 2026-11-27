@@ -15,6 +15,7 @@ define('UAMM_VERSION', '2.0.0');
 define('UAMM_FILE', __FILE__);
 define('UAMM_DIR', plugin_dir_path(__FILE__));
 define('UAMM_URL', plugin_dir_url(__FILE__));
+require_once UAMM_DIR . 'includes/class-uamm-i18n.php';
 require_once UAMM_DIR . 'includes/class-uamm-archive-restore.php';
 require_once UAMM_DIR . 'includes/class-uamm-github-updater.php';
 require_once UAMM_DIR . 'includes/class-uamm-physical-folders.php';
@@ -63,6 +64,7 @@ final class UA_MediaManager {
             'ajax' => admin_url('admin-ajax.php'), 'nonce' => wp_create_nonce(self::NONCE),
             'confirmDelete' => __('Остаточно видалити вибрані файли? Цю дію неможливо скасувати.', 'ua-mediamanager'),
             'working' => __('Обробка…', 'ua-mediamanager'),
+            'i18n' => UAMM_I18n::js_strings(),
         ));
     }
 
