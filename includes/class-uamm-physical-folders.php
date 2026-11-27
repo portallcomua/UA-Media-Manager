@@ -175,7 +175,7 @@ final class UAMM_Physical_Folders {
         $dir = dirname($source);
         $files = array(array('key' => 'main', 'old' => $old_base, 'new' => $new_name));
         foreach ($meta['sizes'] ?? array() as $key => $size) {
-            if (empty($size['file'])) continue;
+            if (empty($size['file']) || !is_file($dir . '/' . basename($size['file']))) continue;
             $old = basename($size['file']);
             $new = preg_replace('/^' . preg_quote($old_stem, '/') . '(?=[.-])/', $new_stem, $old);
             if ($new === $old && $old_stem !== '') $new = $new_stem . '-' . $old;
