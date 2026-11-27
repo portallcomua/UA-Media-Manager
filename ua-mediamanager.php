@@ -16,6 +16,7 @@ define('UAMM_FILE', __FILE__);
 define('UAMM_DIR', plugin_dir_path(__FILE__));
 define('UAMM_URL', plugin_dir_url(__FILE__));
 require_once UAMM_DIR . 'includes/class-uamm-archive-restore.php';
+require_once UAMM_DIR . 'includes/class-uamm-github-updater.php';
 
 final class UA_MediaManager {
     const TAX = 'uamm_folder';
