@@ -38,7 +38,19 @@ final class UAMM_Physical_Folders {
         if ($action === 'create_folder') {
             self::create_folder();
         }
-        self::move_attachments();
+        if ($action === 'rename') {
+            self::rename_attachment();
+        }
+        if ($action === 'rename_folder') {
+            self::rename_folder();
+        }
+        if ($action === 'create_templates') {
+            self::create_templates();
+        }
+        if ($action === 'move') {
+            self::move_attachments();
+        }
+        wp_send_json_error(array('message' => __('Невідома дія.', 'ua-mediamanager')), 400);
     }
 
     private static function upload_paths() {
