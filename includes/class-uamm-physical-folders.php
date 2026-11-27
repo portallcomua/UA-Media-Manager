@@ -21,7 +21,7 @@ final class UAMM_Physical_Folders {
     public static function ajax_action() {
         check_ajax_referer(UA_MediaManager::NONCE, 'nonce');
         $action = sanitize_key($_POST['do'] ?? '');
-        if (!in_array($action, array('create_folder', 'move', 'rename'), true)) {
+        if (!in_array($action, array('create_folder', 'move', 'rename', 'rename_folder'), true)) {
             UA_MediaManager::instance()->ajax_action();
             return;
         }
@@ -142,6 +142,68 @@ final class UAMM_Physical_Folders {
         }
     }
 
+
+
+    private static function rename_folder() {
+        $term_id = absint($_POST['id'] ?? 0);
+        $new_name = sanitize_text_field(wp_unslash($_POST['name'] ?? ''));
+        $term = get_term($term_id, UA_MediaManager::TAX);
+        if (!$term || is_wp_error($term) || $new_name === '') {
+            wp_send_json_error(array('message' => __('Вкажіть папку та нову назву.', 'ua-mediamanager')));
+        }
+        $old_relative = self::safe_relative(get_term_meta($term_id, 'uamm_physical_path', true));
+        if (!$old_relative) wp_send_json_error(array('message' => __('Фізичний шлях папки не знайдено.', 'ua-mediamanager')));
+        list($u, $root) = self::upload_paths();
+        $old_absolute = $root . '/' . $old_relative;
+        $new_slug = sanitize_title($new_name);
+        if (!$new_slug) wp_send_json_error(array('message' => __('Некоректна назва папки.', 'ua-mediamanager')));
+        $parent_relative = dirname($old_relative);
+        $new_relative = ($parent_relative === '.' ? '' : $parent_relative . '/') . $new_slug;
+        $new_absolute = $root . '/' . $new_relative;
+        if (!is_dir($old_absolute)) wp_send_json_error(array('message' => __('Фізичну папку не знайдено.', 'ua-mediamanager')));
+        if (file_exists($new_absolute)) wp_send_json_error(array('message' => __('Папка з такою назвою вже існує.', 'ua-mediamanager')));
+        if (!@rename($old_absolute, $new_absolute)) wp_send_json_error(array('message' => __('Не вдалося перейменувати папку.', 'ua-mediamanager')));
+
+        $updated = wp_update_term($term_id, UA_MediaManager::TAX, array('name' => $new_name, 'slug' => $new_slug));
+        if (is_wp_error($updated)) {
+            @rename($new_absolute, $old_absolute);
+            wp_send_json_error(array('message' => $updated->get_error_message()));
+        }
+        $descendants = get_terms(array('taxonomy' => UA_MediaManager::TAX, 'hide_empty' => false, 'child_of' => $term_id, 'fields' => 'ids'));
+        if (is_wp_error($descendants)) $descendants = array();
+        $all_terms = array_merge(array($term_id), array_map('absint', $descendants));
+        foreach ($all_terms as $child_id) {
+            $path = get_term_meta($child_id, 'uamm_physical_path', true);
+            if ($path === $old_relative || strpos($path, $old_relative . '/') === 0) {
+                update_term_meta($child_id, 'uamm_physical_path', $new_relative . substr($path, strlen($old_relative)));
+            }
+        }
+        $object_ids = get_objects_in_term($all_terms, UA_MediaManager::TAX);
+        if (is_wp_error($object_ids)) $object_ids = array();
+        $url_map = array();
+        $base = trailingslashit($u['baseurl']);
+        foreach (array_unique(array_map('absint', $object_ids)) as $attachment_id) {
+            if (get_post_type($attachment_id) !== 'attachment') continue;
+            $relative = get_post_meta($attachment_id, '_wp_attached_file', true);
+            if (!$relative || strpos($relative, $old_relative . '/') !== 0) continue;
+            $new_file = $new_relative . substr($relative, strlen($old_relative));
+            $url_map[$base . $relative] = $base . $new_file;
+            $meta = wp_get_attachment_metadata($attachment_id);
+            if (is_array($meta)) {
+                $old_dir = dirname($relative);
+                $new_dir = dirname($new_file);
+                foreach ($meta['sizes'] ?? array() as $size) {
+                    if (!empty($size['file'])) $url_map[$base . $old_dir . '/' . $size['file']] = $base . $new_dir . '/' . $size['file'];
+                }
+                if (!empty($meta['original_image'])) $url_map[$base . $old_dir . '/' . $meta['original_image']] = $base . $new_dir . '/' . $meta['original_image'];
+                $meta['file'] = $new_file;
+                wp_update_attachment_metadata($attachment_id, $meta);
+            }
+            update_post_meta($attachment_id, '_wp_attached_file', $new_file);
+        }
+        if ($url_map) self::rewrite_references($url_map);
+        wp_send_json_success(array('message' => __('Папку та її вкладені папки перейменовано. Шляхи вкладень і знайдені URL оновлено.', 'ua-mediamanager')));
+    }
 
     private static function rename_attachment() {
         $id = absint($_POST['id'] ?? 0);
