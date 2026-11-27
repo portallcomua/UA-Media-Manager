@@ -3,3 +3,5 @@
 
 .uamm-folder-row{display:flex;align-items:center;gap:6px}.uamm-folder-row .uamm-folder{flex:1;min-width:0}.uamm-folder-row .button-link{font-size:10px;white-space:nowrap}
 .uamm-new-folder{flex-wrap:wrap}.uamm-new-folder select{width:100%;max-width:100%}
+
+.uamm-progress{height:14px;max-width:720px;background:#e7edf4;border-radius:20px;overflow:hidden}.uamm-progress span{display:block;width:0;height:100%;background:#2474b8;transition:width .2s ease}.uamm-wrap #uamm-optimize-progress{max-width:760px;margin-top:18px;padding:16px;background:#fff;border:1px solid #e0e6ee;border-radius:10px}.uamm-wrap #uamm-optimize-progress[hidden]{display:none}
