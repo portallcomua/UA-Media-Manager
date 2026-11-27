@@ -84,6 +84,21 @@ final class UAMM_I18n {
             'startOptimize' => $uk ? 'Запустити lossless-оптимізацію' : 'Start lossless optimization',
             'connectionError' => $uk ? 'Помилка зв’язку із сервером. Запустіть оптимізацію повторно.' : 'Server connection error. Please restart optimization.',
             'working' => $uk ? 'Обробка…' : 'Working…',
+            'scanUnused' => $uk ? 'Знайти можливі невикористовувані' : 'Find possible unused files',
+            'scanError' => $uk ? 'Помилка сканування' : 'Scan failed',
+            'selectFilesFolder' => $uk ? 'Оберіть файли та папку.' : 'Select files and a folder.',
+            'moveError' => $uk ? 'Помилка' : 'Error',
+            'optimizerUnavailable' => $uk ? 'Статус недоступний' : 'Status unavailable',
+            'startFailed' => $uk ? 'Не вдалося запустити оптимізацію' : 'Could not start optimization',
+            'optimizationError' => $uk ? 'Помилка оптимізації' : 'Optimization error',
+            'fileCount' => $uk ? 'файлів' : 'files',
+            'before' => $uk ? 'Було: ' : 'Before: ',
+            'after' => $uk ? 'Стало: ' : 'After: ',
+            'saved' => $uk ? 'Заощаджено: ' : 'Saved: ',
+            'bytes' => $uk ? 'Б' : 'B',
+            'kb' => $uk ? 'КБ' : 'KB',
+            'mb' => $uk ? 'МБ' : 'MB',
+            'gb' => $uk ? 'ГБ' : 'GB',
         );
     }
 }
