@@ -26,6 +26,7 @@ Branch archive: https://github.com/portallcomua/UA-Media-Manager/archive/refs/he
 - Public GitHub Releases update check. Publish a versioned GitHub Release; preferably attach a correctly packaged `ua-mediamanager.zip` asset.
 - Lossless batch optimization is available only when server binaries `jpegoptim`, `optipng` and/or `gifsicle` are installed and PHP `exec` is enabled. Supported JPEG/PNG/GIF files are processed in batches with a progress bar and before/after size summary; unsupported formats are skipped.
 - PHP syntax-check workflow for GitHub pushes and pull requests.
+- Locale-aware Ukrainian/English labels for the core admin interface (Ukrainian when the WordPress locale is Ukrainian; English otherwise).
 - Capability checks, AJAX nonce checks and responsive admin styles.
 
 ## Not yet implemented — do not treat as finished
@@ -35,7 +36,7 @@ The following original requirements remain open:
 - Full WordPress site restoration (database, attachment IDs, taxonomy assignments and all plugin metadata). ZIP restore imports recognized media files as new attachments on a fresh database and untrashes matching existing attachment records, but it is not a complete site backup.
 - Reliable unused-media scanner covering page builders, widgets, theme options, WooCommerce, custom fields, CSS and external/plugin storage. Current scan is heuristic only.
 - Automatic duplicate merging across attachment references. Current SHA-256 scan finds exact duplicates and offers to move candidates to WordPress Trash; it does not automatically merge references.
-- Full bilingual Ukrainian/English interface and language auto-detection.
+- Final translation QA for every edge-case notice, updater screen and third-party integration.
 - Freemius SDK licensing and PRO gating. No license activation is currently required or implemented.
 - Marketing package: final logo, banner, real admin screenshots, product-page copy and Facebook copy.
 - Full compatibility testing against supported WordPress, WooCommerce, Elementor and popular themes.
