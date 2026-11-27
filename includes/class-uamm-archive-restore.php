@@ -28,10 +28,11 @@ final class UAMM_Archive_Restore {
         $restored = absint($_GET['uamm_restored']);
         $skipped = absint($_GET['uamm_skipped'] ?? 0);
         $untrashed = absint($_GET['uamm_untrashed'] ?? 0);
-        $errors = absint($_GET['uamm_errors'] ?? 0);\n        $imported = absint($_GET['uamm_imported'] ?? 0);
+        $errors = absint($_GET['uamm_errors'] ?? 0);
+        $imported = absint($_GET['uamm_imported'] ?? 0);
         echo '<div class="notice notice-success"><p>' . esc_html(sprintf(
-            __('Відновлення завершено. Файлів додано: %1$d; пропущено через наявні файли: %2$d; вкладень повернуто з кошика: %3$d; помилок: %4$d.', 'ua-mediamanager'),
-            $restored, $skipped, $untrashed, $errors
+            __('Відновлення завершено. Файлів розпаковано: %1$d; нових вкладень імпортовано: %2$d; пропущено наявних файлів: %3$d; вкладень повернуто з кошика: %4$d; помилок: %5$d.', 'ua-mediamanager'),
+            $restored, $imported, $skipped, $untrashed, $errors
         )) . '</p></div>';
     }
 
@@ -84,6 +85,7 @@ final class UAMM_Archive_Restore {
         $restored = 0;
         $skipped = 0;
         $errors = 0;
+        $imported = 0;
         $total = 0;
         for ($i = 0; $i < $zip->numFiles; $i++) {
             $stat = $zip->statIndex($i);
@@ -185,7 +187,8 @@ final class UAMM_Archive_Restore {
             'page' => 'ua-mediamanager-quarantine',
             'uamm_restored' => $restored,
             'uamm_skipped' => $skipped,
-            'uamm_untrashed' => $untrashed,\n            'uamm_imported' => $imported,
+            'uamm_untrashed' => $untrashed,
+            'uamm_imported' => $imported,
             'uamm_errors' => $errors,
         ), admin_url('admin.php'));
         wp_safe_redirect($url);
