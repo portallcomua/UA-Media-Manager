@@ -31,7 +31,7 @@ Branch archive: https://github.com/portallcomua/UA-Media-Manager/archive/refs/he
 The following original requirements remain open:
 - More complete preset folder templates for additional plugin-specific structures can be added as required.
 - A full transactional rollback for database write failures and third-party offload/CDN integrations. Physical move currently rolls back filesystem changes if a file collision/move error occurs, but database and third-party custom references still require broader compatibility testing.
-- Complete ZIP-to-media-library import on a fresh database. ZIP restore currently restores files and reconnects only matching attachment records already present in Trash; it is not a full WordPress site backup.
+- Full WordPress site restoration (database, attachment IDs, taxonomy assignments and all plugin metadata). ZIP restore imports recognized media files as new attachments on a fresh database and untrashes matching existing attachment records, but it is not a complete site backup.
 - Reliable unused-media scanner covering page builders, widgets, theme options, WooCommerce, custom fields, CSS and external/plugin storage. Current scan is heuristic only.
 - Safe duplicate merge across attachment references. Current SHA-256 scan finds exact duplicates and offers to move candidates to WordPress Trash; it does not automatically merge references.
 - Lossless batch optimization is available only when server binaries `jpegoptim`, `optipng` and/or `gifsicle` are installed and PHP `exec` is enabled. Supported JPEG/PNG/GIF files are processed in batches with a progress bar and before/after size summary; unsupported formats are skipped.
