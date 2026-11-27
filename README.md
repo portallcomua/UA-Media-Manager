@@ -22,6 +22,8 @@ Branch archive: https://github.com/portallcomua/UA-Media-Manager/archive/refs/he
 - ZIP download of the uploads directory streamed to the browser; the temporary archive is removed after the response.
 - ZIP download of files in the WordPress media trash.
 - ZIP restore with path traversal checks, a 10,000-file limit, 2 GB uncompressed size limit and no-overwrite behavior.
+- Correct AJAX routing for attachment rename, folder rename, standard-folder creation and physical moves.
+- Expanded unused-media candidate scan across post content, post metadata and WordPress options, including attachment parent checks. Results remain heuristic and require manual review.
 - When a restored file matches an attachment in WordPress Trash, the attachment is automatically untrashed.
 - Public GitHub Releases update check. Publish a versioned GitHub Release; preferably attach a correctly packaged `ua-mediamanager.zip` asset.
 - Lossless batch optimization is available only when server binaries `jpegoptim`, `optipng` and/or `gifsicle` are installed and PHP `exec` is enabled. Supported JPEG/PNG/GIF files are processed in batches with a progress bar and before/after size summary; unsupported formats are skipped.
@@ -36,7 +38,7 @@ The following original requirements remain open:
 - More complete preset folder templates for additional plugin-specific structures can be added as required.
 - A full transactional rollback for database write failures and third-party offload/CDN integrations. Physical move currently rolls back filesystem changes if a file collision/move error occurs, but database and third-party custom references still require broader compatibility testing.
 - Full WordPress site restoration (database, attachment IDs, taxonomy assignments and all plugin metadata). ZIP restore imports recognized media files as new attachments on a fresh database and untrashes matching existing attachment records, but it is not a complete site backup.
-- Reliable unused-media scanner covering page builders, widgets, theme options, WooCommerce, custom fields, CSS and external/plugin storage. Current scan is heuristic only.
+- Complete unused-media reference analysis for galleries that store only attachment IDs, all page-builder/widget/theme/CSS patterns, WooCommerce extensions and external/plugin storage. The current scan checks URLs and relative paths in WordPress content, post metadata and options, but remains heuristic.
 - Automatic duplicate merging across attachment references. Current SHA-256 scan finds exact duplicates and offers to move candidates to WordPress Trash; it does not automatically merge references.
 - Final translation QA for every edge-case notice, updater screen and third-party integration.
 - Freemius SDK licensing and PRO gating. No license activation is currently required or implemented.
