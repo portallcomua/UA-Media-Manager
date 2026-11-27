@@ -21,7 +21,7 @@ final class UAMM_Physical_Folders {
     public static function ajax_action() {
         check_ajax_referer(UA_MediaManager::NONCE, 'nonce');
         $action = sanitize_key($_POST['do'] ?? '');
-        if (!in_array($action, array('create_folder', 'move'), true)) {
+        if (!in_array($action, array('create_folder', 'move', 'rename'), true)) {
             UA_MediaManager::instance()->ajax_action();
             return;
         }
@@ -140,6 +140,95 @@ final class UAMM_Physical_Folders {
                 }
             }
         }
+    }
+
+
+    private static function rename_attachment() {
+        $id = absint($_POST['id'] ?? 0);
+        $new_name = sanitize_file_name(wp_unslash($_POST['name'] ?? ''));
+        if (!$id || get_post_type($id) !== 'attachment' || !current_user_can('edit_post', $id)) {
+            wp_send_json_error(array('message' => __('Немає доступу до цього файлу.', 'ua-mediamanager')));
+        }
+        $source = get_attached_file($id);
+        $meta = wp_get_attachment_metadata($id);
+        if (!$source || !is_file($source) || !is_array($meta)) {
+            wp_send_json_error(array('message' => __('Файл або метадані не знайдено.', 'ua-mediamanager')));
+        }
+        $real_source = realpath($source);
+        list($u, $root) = self::upload_paths();
+        if (!$real_source || strpos(wp_normalize_path($real_source), $root . '/') !== 0) {
+            wp_send_json_error(array('message' => __('Дозволено перейменовувати лише файли всередині uploads.', 'ua-mediamanager')));
+        }
+        if ($new_name === '' || strpos($new_name, '/') !== false || strpos($new_name, '\\\\') !== false) {
+            wp_send_json_error(array('message' => __('Вкажіть коректну нову назву файлу.', 'ua-mediamanager')));
+        }
+        $old_base = basename($source);
+        $old_ext = pathinfo($old_base, PATHINFO_EXTENSION);
+        $new_ext = pathinfo($new_name, PATHINFO_EXTENSION);
+        if (!$new_ext && $old_ext) $new_name .= '.' . $old_ext;
+        elseif (strtolower($new_ext) !== strtolower($old_ext)) {
+            wp_send_json_error(array('message' => __('Зміна розширення файлу заборонена.', 'ua-mediamanager')));
+        }
+        if ($new_name === $old_base) wp_send_json_error(array('message' => __('Назва не змінилася.', 'ua-mediamanager')));
+        $old_stem = pathinfo($old_base, PATHINFO_FILENAME);
+        $new_stem = pathinfo($new_name, PATHINFO_FILENAME);
+        $dir = dirname($source);
+        $files = array(array('key' => 'main', 'old' => $old_base, 'new' => $new_name));
+        foreach ($meta['sizes'] ?? array() as $key => $size) {
+            if (empty($size['file'])) continue;
+            $old = basename($size['file']);
+            $new = preg_replace('/^' . preg_quote($old_stem, '/') . '(?=[.-])/', $new_stem, $old);
+            if ($new === $old && $old_stem !== '') $new = $new_stem . '-' . $old;
+            $files[] = array('key' => 'size:' . $key, 'old' => $old, 'new' => $new);
+        }
+        foreach ($meta['backup_sizes'] ?? array() as $key => $size) {
+            if (empty($size['file'])) continue;
+            $old = basename($size['file']);
+            $new = preg_replace('/^' . preg_quote($old_stem, '/') . '(?=[.-])/', $new_stem, $old);
+            if ($new === $old && $old_stem !== '') $new = $new_stem . '-' . $old;
+            $files[] = array('key' => 'backup:' . $key, 'old' => $old, 'new' => $new);
+        }
+        if (!empty($meta['original_image'])) {
+            $old = basename($meta['original_image']);
+            $new = preg_replace('/^' . preg_quote($old_stem, '/') . '(?=[.-])/', $new_stem, $old);
+            if ($new === $old) $new = $new_stem . '-' . $old;
+            $files[] = array('key' => 'original_image', 'old' => $old, 'new' => $new);
+        }
+        foreach ($files as $file) {
+            if ($file['old'] !== $file['new'] && file_exists($dir . '/' . $file['new'])) {
+                wp_send_json_error(array('message' => __('Файл із такою назвою вже існує. Нічого не змінено.', 'ua-mediamanager')));
+            }
+        }
+        $moves = array();
+        foreach ($files as $file) {
+            $from = $dir . '/' . $file['old'];
+            $to = $dir . '/' . $file['new'];
+            if (!is_file($from) || $from === $to) continue;
+            if (!@rename($from, $to)) {
+                foreach (array_reverse($moves) as $move) @rename($move[1], $move[0]);
+                wp_send_json_error(array('message' => __('Не вдалося перейменувати всі файли. Зміни скасовано.', 'ua-mediamanager')));
+            }
+            $moves[] = array($from, $to, $file['key']);
+        }
+        foreach ($moves as $move) {
+            $key = $move[2];
+            if (strpos($key, 'size:') === 0) $meta['sizes'][substr($key, 5)]['file'] = basename($move[1]);
+            elseif (strpos($key, 'backup:') === 0) $meta['backup_sizes'][substr($key, 7)]['file'] = basename($move[1]);
+            elseif ($key === 'original_image') $meta['original_image'] = basename($move[1]);
+        }
+        $relative = ltrim(str_replace(wp_normalize_path($root), '', wp_normalize_path($source)), '/');
+        $new_relative = (dirname($relative) === '.' ? '' : dirname($relative) . '/') . $new_name;
+        $meta['file'] = $new_relative;
+        $url_base = trailingslashit($u['baseurl']);
+        $map = array();
+        foreach ($files as $file) {
+            $map[$url_base . (dirname($relative) === '.' ? '' : dirname($relative) . '/') . $file['old']] =
+                $url_base . (dirname($new_relative) === '.' ? '' : dirname($new_relative) . '/') . $file['new'];
+        }
+        update_post_meta($id, '_wp_attached_file', $new_relative);
+        wp_update_attachment_metadata($id, $meta);
+        self::rewrite_references($map);
+        wp_send_json_success(array('message' => __('Файл та його відомі розміри перейменовано. Посилання оновлено.', 'ua-mediamanager')));
     }
 
     private static function move_attachments() {
