@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="520" viewBox="0 0 1600 520" role="img" aria-labelledby="title desc">
+<title id="title">UA MediaManager banner</title><desc id="desc">Promotional banner for UA MediaManager WordPress media library plugin.</desc>
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#061a38"/><stop offset=".55" stop-color="#0d4d91"/><stop offset="1" stop-color="#087bc2"/></linearGradient>
+ <linearGradient id="yellow" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffe77b"/><stop offset="1" stop-color="#f0b900"/></linearGradient>
+ <radialGradient id="glow"><stop stop-color="#52b9ff" stop-opacity=".45"/><stop offset="1" stop-color="#52b9ff" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="1600" height="520" rx="28" fill="url(#bg)"/>
+<circle cx="1300" cy="210" r="390" fill="url(#glow)"/>
+<g opacity=".15" fill="#fff"><circle cx="1210" cy="80" r="4"/><circle cx="1260" cy="125" r="3"/><circle cx="1450" cy="90" r="5"/><circle cx="1510" cy="190" r="3"/><circle cx="1360" cy="390" r="4"/><circle cx="1110" cy="410" r="3"/></g>
+<g transform="translate(95 95)">
+ <path d="M10 90q0-20 22-20h105l33 29h133q23 0 23 24v178q0 23-24 23H34q-24 0-24-24z" fill="url(#yellow)"/>
+ <path d="M10 116q0-20 22-20h105l33 29h133q23 0 23 24v150q0 23-24 23H34q-24 0-24-24z" fill="#0877c9" stroke="#c9eaff" stroke-width="7"/>
+ <rect x="69" y="135" width="150" height="115" rx="12" fill="#fff" transform="rotate(-5 144 192)"/>
+ <rect x="82" y="148" width="124" height="88" rx="7" fill="#b9e8ff" transform="rotate(-5 144 192)"/>
+ <path d="m82 221 40-42 26 25 19-20 39 39H82z" fill="#126ab0"/>
+ <circle cx="178" cy="166" r="11" fill="#f7c62f"/>
+ <path d="m240 150 38-22 38 22v46q0 48-38 67-38-19-38-67z" fill="url(#yellow)" stroke="#fff" stroke-width="6"/>
+ <path d="m258 190 14 14 27-34" fill="none" stroke="#08376d" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<g transform="translate(505 125)">
+ <text x="0" y="20" font-family="Arial,Helvetica,sans-serif" font-size="26" font-weight="700" letter-spacing="6" fill="#ffe27a">UA SERVER</text>
+ <text x="0" y="115" font-family="Arial,Helvetica,sans-serif" font-size="76" font-weight="800" fill="#fff">UA <tspan fill="#ffd33e">MediaManager</tspan></text>
+ <text x="3" y="183" font-family="Arial,Helvetica,sans-serif" font-size="34" font-weight="600" fill="#e7f5ff">Порядок у медіатеці WordPress</text>
+ <text x="3" y="238" font-family="Arial,Helvetica,sans-serif" font-size="24" fill="#c4e4ff">Папки • Переміщення • Карантин • ZIP • Lossless-оптимізація</text>
+ <rect x="0" y="286" width="410" height="7" rx="3.5" fill="url(#yellow)"/>
+ <text x="3" y="345" font-family="Arial,Helvetica,sans-serif" font-size="22" fill="#d5edff">Зручне керування файлами вашого сайту</text>
+</g>
+</svg>
