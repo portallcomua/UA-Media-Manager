@@ -21,13 +21,14 @@ final class UAMM_Physical_Folders {
     public static function ajax_action() {
         check_ajax_referer(UA_MediaManager::NONCE, 'nonce');
         $action = sanitize_key($_POST['do'] ?? '');
-        if (!in_array($action, array('create_folder', 'move', 'rename', 'rename_folder', 'create_templates', 'optimize_start', 'optimize_step', 'optimizer_status'), true)) {
+        if (!in_array($action, array('create_folder', 'move', 'rename', 'rename_folder', 'create_templates', 'optimize_start', 'optimize_step', 'optimizer_status', 'scan_duplicates'), true)) {
             UA_MediaManager::instance()->ajax_action();
             return;
         }
         if (in_array($action, array('optimize_start', 'optimize_step', 'optimizer_status'), true)) {
             if (!current_user_can('manage_options')) wp_send_json_error(array('message' => __('Потрібні права адміністратора.', 'ua-mediamanager')), 403);
             if ($action === 'optimizer_status') self::optimizer_status();
+            if ($action === 'scan_duplicates') self::scan_duplicates();
             if ($action === 'optimize_start') self::optimize_start();
             self::optimize_step();
         }
@@ -80,6 +81,46 @@ final class UAMM_Physical_Folders {
     }
 
 
+
+
+    private static function scan_duplicates() {
+        $attachments = get_posts(array(
+            'post_type' => 'attachment',
+            'post_status' => 'inherit',
+            'numberposts' => 2000,
+            'fields' => 'ids',
+            'orderby' => 'ID',
+            'order' => 'ASC',
+        ));
+        $groups = array();
+        $checked = 0;
+        foreach ($attachments as $id) {
+            if (strpos((string)get_post_mime_type($id), 'image/') !== 0) continue;
+            $file = get_attached_file($id);
+            if (!$file || !is_file($file) || filesize($file) > 209715200) continue;
+            $hash = @hash_file('sha256', $file);
+            if (!$hash) continue;
+            $checked++;
+            if (!isset($groups[$hash])) $groups[$hash] = array();
+            $groups[$hash][] = array(
+                'id' => (int)$id,
+                'title' => get_the_title($id),
+                'file' => wp_basename($file),
+                'bytes' => (int)filesize($file),
+            );
+        }
+        $duplicates = array();
+        foreach ($groups as $hash => $items) {
+            if (count($items) > 1) {
+                $duplicates[] = array('hash' => $hash, 'items' => $items);
+            }
+        }
+        wp_send_json_success(array(
+            'checked' => $checked,
+            'groups' => $duplicates,
+            'message' => sprintf(__('Перевірено зображень: %1$d. Груп однакових файлів: %2$d. Перевірка обмежена 2000 вкладеннями та файлами до 200 МБ.', 'ua-mediamanager'), $checked, count($duplicates))
+        ));
+    }
 
     private static function optimizer_tools() {
         $disabled = array_map('trim', explode(',', (string)ini_get('disable_functions')));
