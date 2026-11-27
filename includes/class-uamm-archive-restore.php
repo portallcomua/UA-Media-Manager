@@ -10,6 +10,7 @@ final class UAMM_Archive_Restore {
     public static function boot() {
         add_action('plugins_loaded', array(__CLASS__, 'replace_handler'), 20);
         add_action('admin_footer', array(__CLASS__, 'render_restore_form'));
+        add_action('admin_notices', array(__CLASS__, 'restore_notice'));
     }
 
     public static function replace_handler() {
@@ -17,6 +18,21 @@ final class UAMM_Archive_Restore {
             remove_action('admin_post_uamm_restore', array(UA_MediaManager::instance(), 'restore_upload'));
         }
         add_action('admin_post_uamm_restore', array(__CLASS__, 'restore_upload'));
+    }
+
+
+    public static function restore_notice() {
+        if (!is_admin() || !isset($_GET['page']) || $_GET['page'] !== 'ua-mediamanager-quarantine' || !current_user_can('manage_options') || !isset($_GET['uamm_restored'])) {
+            return;
+        }
+        $restored = absint($_GET['uamm_restored']);
+        $skipped = absint($_GET['uamm_skipped'] ?? 0);
+        $untrashed = absint($_GET['uamm_untrashed'] ?? 0);
+        $errors = absint($_GET['uamm_errors'] ?? 0);
+        echo '<div class="notice notice-success"><p>' . esc_html(sprintf(
+            __('Відновлення завершено. Файлів додано: %1$d; пропущено через наявні файли: %2$d; вкладень повернуто з кошика: %3$d; помилок: %4$d.', 'ua-mediamanager'),
+            $restored, $skipped, $untrashed, $errors
+        )) . '</p></div>';
     }
 
     public static function render_restore_form() {
