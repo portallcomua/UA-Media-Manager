@@ -7,5 +7,30 @@ jQuery(function($){
   $('[data-action]').on('click',function(e){e.preventDefault();const btn=$(this),action=btn.data('action');if(action==='delete'&&!confirm(UAMM.confirmDelete))return;const payload={id:btn.data('id'),ids:action==='quarantine'?selected():[]};if(action==='rename'||action==='rename_folder'){const name=prompt(action==='rename_folder'?'Нова назва папки:':'Нова назва файлу (з розширенням або без):');if(!name)return;payload.name=name;}request(action,payload).done(r=>{notice(r.data?.message||'Готово',!r.success);if(r.success)setTimeout(()=>location.reload(),800);});});
   $('#uamm-move').on('click',function(){const folder=$('#uamm-move-folder').val(),ids=selected();if(!ids.length||!folder){notice('Оберіть файли та папку.',true);return;}request('move',{folder,ids}).done(r=>{notice(r.data?.message||'Готово',!r.success);if(r.success)setTimeout(()=>location.reload(),800);});});
   $('#uamm-scan-unused').on('click',function(){const b=$(this);b.prop('disabled',true).text(UAMM.working);request('scan_unused',{}).done(r=>{const out=$('#uamm-scan-result');out.empty();if(!r.success){out.text(r.data?.message||'Помилка');return;}out.append($('<p>').text(r.data.message));if(r.data.items?.length){const ul=$('<ul>');r.data.items.forEach(x=>ul.append($('<li>').text(x.title+' — '+x.url)));out.append(ul);} }).always(()=>b.prop('disabled',false).text('Знайти можливі невикористовувані'));});
+  if($('#uamm-optimizer-status').length){request('optimizer_status',{}).done(r=>$('#uamm-optimizer-status').text(r.data?.message||'Статус недоступний'));}
+  $('#uamm-optimize-start').on('click',function(e){
+    e.preventDefault();
+    if(!confirm('Перед оптимізацією створіть ZIP-резервну копію uploads. Продовжити?'))return;
+    const button=$(this);button.prop('disabled',true).text('Підготовка…');
+    $('#uamm-optimize-progress').prop('hidden',false);$('#uamm-progress-bar').css('width','0%');$('#uamm-progress-text').text('Підготовка списку файлів…');$('#uamm-optimize-stats').empty();
+    request('optimize_start',{}).done(r=>{
+      if(!r.success){$('#uamm-progress-text').text(r.data?.message||'Не вдалося запустити оптимізацію');button.prop('disabled',false).text('Запустити lossless-оптимізацію');return;}
+      const before=Number(r.data.bytes_before||0),total=Number(r.data.total||0);
+      $('#uamm-progress-text').text('0 / '+total+' файлів');
+      const step=offset=>request('optimize_step',{offset}).done(x=>{
+        if(!x.success){$('#uamm-progress-text').text(x.data?.message||'Помилка оптимізації');button.prop('disabled',false).text('Запустити lossless-оптимізацію');return;}
+        const p=Number(x.data.percent||0),saved=Number(x.data.saved||0);
+        $('#uamm-progress-bar').css('width',p+'%');
+        $('#uamm-progress-text').text(x.data.processed+' / '+x.data.total+' файлів · '+p+'%');
+        if(x.data.done){
+          $('#uamm-progress-text').text(x.data.message);
+          $('#uamm-optimize-stats').text('Було: '+formatBytes(before)+' · Стало: '+formatBytes(Math.max(0,before-saved))+' · Заощаджено: '+formatBytes(saved));
+          button.prop('disabled',false).text('Запустити lossless-оптимізацію');
+        }else step(x.data.next);
+      }).fail(()=>{button.prop('disabled',false).text('Запустити lossless-оптимізацію');$('#uamm-progress-text').text('Помилка зв’язку із сервером. Запустіть оптимізацію повторно.');});
+      step(0);
+    }).fail(()=>{button.prop('disabled',false).text('Запустити lossless-оптимізацію');});
+  });
+  function formatBytes(bytes){if(!bytes)return '0 Б';const units=['Б','КБ','МБ','ГБ'];let i=0,n=bytes;while(n>=1024&&i<units.length-1){n/=1024;i++;}return n.toFixed(2)+' '+units[i];}
   function request(action,data){return $.post(UAMM.ajax,Object.assign({action:'uamm_action',do:action,nonce:UAMM.nonce},data)).fail(xhr=>notice(xhr.responseJSON?.data?.message||'Помилка запиту.',true));}
 });
