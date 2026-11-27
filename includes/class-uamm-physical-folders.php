@@ -21,7 +21,7 @@ final class UAMM_Physical_Folders {
     public static function ajax_action() {
         check_ajax_referer(UA_MediaManager::NONCE, 'nonce');
         $action = sanitize_key($_POST['do'] ?? '');
-        if (!in_array($action, array('create_folder', 'move', 'rename', 'rename_folder'), true)) {
+        if (!in_array($action, array('create_folder', 'move', 'rename', 'rename_folder', 'create_templates'), true)) {
             UA_MediaManager::instance()->ajax_action();
             return;
         }
@@ -71,6 +71,50 @@ final class UAMM_Physical_Folders {
         $real = realpath($absolute);
         if (!$real || strpos(wp_normalize_path($real) . '/', $root . '/') !== 0) return false;
         return array($relative, wp_normalize_path($real));
+    }
+
+
+    private static function create_templates() {
+        $paths = array('images/blog', 'WooCommerce/images', 'WooCommerce/category', 'Plugins', 'Elementor', 'Theme');
+        $created = 0;
+        foreach ($paths as $path) {
+            $parent_id = 0;
+            $relative = 'uamm';
+            foreach (explode('/', $path) as $part) {
+                $slug = sanitize_title($part);
+                $existing = get_terms(array(
+                    'taxonomy' => UA_MediaManager::TAX,
+                    'hide_empty' => false,
+                    'parent' => $parent_id,
+                    'slug' => $slug,
+                    'number' => 1,
+                ));
+                if (!is_wp_error($existing) && $existing) {
+                    $term = $existing[0];
+                    $parent_id = (int)$term->term_id;
+                    $stored = get_term_meta($parent_id, 'uamm_physical_path', true);
+                    if ($stored) $relative = $stored;
+                    else {
+                        $relative = $relative . '/' . $term->slug;
+                        update_term_meta($parent_id, 'uamm_physical_path', $relative);
+                        list($u, $root) = self::upload_paths();
+                        if (!wp_mkdir_p($root . '/' . $relative)) continue;
+                    }
+                } else {
+                    $inserted = wp_insert_term($part, UA_MediaManager::TAX, array('parent' => $parent_id));
+                    if (is_wp_error($inserted)) continue;
+                    $term = get_term((int)$inserted['term_id'], UA_MediaManager::TAX);
+                    if (!$term || is_wp_error($term)) continue;
+                    $parent_id = (int)$term->term_id;
+                    $relative = $relative . '/' . $term->slug;
+                    update_term_meta($parent_id, 'uamm_physical_path', $relative);
+                    list($u, $root) = self::upload_paths();
+                    if (!wp_mkdir_p($root . '/' . $relative)) continue;
+                    $created++;
+                }
+            }
+        }
+        wp_send_json_success(array('message' => sprintf(__('Стандартну структуру папок перевірено. Створено нових папок: %d.', 'ua-mediamanager'), $created)));
     }
 
     private static function create_folder() {
