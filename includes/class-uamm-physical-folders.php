@@ -407,6 +407,9 @@ final class UAMM_Physical_Folders {
                 foreach ($meta['sizes'] ?? array() as $size) {
                     if (!empty($size['file'])) $url_map[$base . $old_dir . '/' . $size['file']] = $base . $new_dir . '/' . $size['file'];
                 }
+                foreach ($meta['backup_sizes'] ?? array() as $size) {
+                    if (!empty($size['file'])) $url_map[$base . $old_dir . '/' . $size['file']] = $base . $new_dir . '/' . $size['file'];
+                }
                 if (!empty($meta['original_image'])) $url_map[$base . $old_dir . '/' . $meta['original_image']] = $base . $new_dir . '/' . $meta['original_image'];
                 $meta['file'] = $new_file;
                 wp_update_attachment_metadata($attachment_id, $meta);
@@ -570,6 +573,12 @@ final class UAMM_Physical_Folders {
             $map = array($old_url_base . $old_relative => $old_url_base . $new_relative);
             foreach ($meta['sizes'] ?? array() as $size) {
                 if (!empty($size['file'])) $map[$old_url_base . dirname($old_relative) . '/' . $size['file']] = $old_url_base . $destination[0] . '/' . $size['file'];
+            }
+            foreach ($meta['backup_sizes'] ?? array() as $size) {
+                if (!empty($size['file'])) $map[$old_url_base . dirname($old_relative) . '/' . $size['file']] = $old_url_base . $destination[0] . '/' . $size['file'];
+            }
+            if (!empty($meta['original_image'])) {
+                $map[$old_url_base . dirname($old_relative) . '/' . $meta['original_image']] = $old_url_base . $destination[0] . '/' . $meta['original_image'];
             }
             if (!empty($meta['original_image'])) {
                 $meta['original_image'] = basename($meta['original_image']);
