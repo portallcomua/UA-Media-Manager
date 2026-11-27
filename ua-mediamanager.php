@@ -215,12 +215,48 @@ final class UA_MediaManager {
             foreach($attachments as $att) {
                 $url=wp_get_attachment_url($att->ID);
                 if (!$url) continue;
-                $like='%'.$wpdb->esc_like($url).'%';
-                $used=(int)$wpdb->get_var($wpdb->prepare("SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_status NOT IN ('trash','auto-draft') AND post_type IN ('post','page','product','wp_block','wp_template','wp_template_part') AND post_content LIKE %s",$like));
-                if (!$used) {
-                    $meta=wp_get_attachment_metadata($att->ID);
-                    $parent=wp_get_post_parent_id($att->ID);
-                    if (!$parent && empty($meta['sizes'])) $candidates[]=array('title'=>get_the_title($att->ID),'url'=>$url);
+                $like_url='%'.$wpdb->esc_like($url).'%';
+                $relative=ltrim((string)get_post_meta($att->ID, '_wp_attached_file', true), '/');
+                $like_path=$relative ? '%'.$wpdb->esc_like($relative).'%' : '';
+                $content_used=(int)$wpdb->get_var($wpdb->prepare(
+                    "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_status NOT IN ('trash','auto-draft') AND post_type <> 'attachment' AND post_content LIKE %s",
+                    $like_url
+                ));
+                if (!$content_used && $like_path) {
+                    $content_used=(int)$wpdb->get_var($wpdb->prepare(
+                        "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_status NOT IN ('trash','auto-draft') AND post_type <> 'attachment' AND post_content LIKE %s",
+                        $like_path
+                    ));
+                }
+                $meta_used=(int)$wpdb->get_var($wpdb->prepare(
+                    "SELECT COUNT(meta_id) FROM {$wpdb->postmeta} WHERE post_id <> %d AND meta_value LIKE %s",
+                    $att->ID, $like_url
+                ));
+                if (!$meta_used && $like_path) {
+                    $meta_used=(int)$wpdb->get_var($wpdb->prepare(
+                        "SELECT COUNT(meta_id) FROM {$wpdb->postmeta} WHERE post_id <> %d AND meta_value LIKE %s",
+                        $att->ID, $like_path
+                    ));
+                }
+                $option_used=(int)$wpdb->get_var($wpdb->prepare(
+                    "SELECT COUNT(option_id) FROM {$wpdb->options} WHERE option_value LIKE %s",
+                    $like_url
+                ));
+                if (!$option_used && $like_path) {
+                    $option_used=(int)$wpdb->get_var($wpdb->prepare(
+                        "SELECT COUNT(option_id) FROM {$wpdb->options} WHERE option_value LIKE %s",
+                        $like_path
+                    ));
+                }
+                $parent=wp_get_post_parent_id($att->ID);
+                if (!$parent && !$content_used && !$meta_used && !$option_used) {
+                    $candidates[]=array(
+                        'id'=>(int)$att->ID,
+                        'title'=>get_the_title($att->ID),
+                        'url'=>$url,
+                        'file'=>$relative,
+                        'bytes'=>(int)(get_attached_file($att->ID) && is_file(get_attached_file($att->ID)) ? filesize(get_attached_file($att->ID)) : 0)
+                    );
                 }
                 if (count($candidates)>=50) break;
             }
