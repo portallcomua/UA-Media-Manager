@@ -25,6 +25,8 @@ Branch archive: https://github.com/portallcomua/UA-Media-Manager/archive/refs/he
 - When a restored file matches an attachment in WordPress Trash, the attachment is automatically untrashed.
 - Public GitHub Releases update check. Publish a versioned GitHub Release; preferably attach a correctly packaged `ua-mediamanager.zip` asset.
 - Lossless batch optimization is available only when server binaries `jpegoptim`, `optipng` and/or `gifsicle` are installed and PHP `exec` is enabled. Supported JPEG/PNG/GIF files are processed in batches with a progress bar and before/after size summary; unsupported formats are skipped.
+- Brand assets in `assets/branding/logo.svg` and `assets/branding/banner.svg`.
+- Draft product-page and Facebook copy in Ukrainian and English under `marketing/`.
 - PHP syntax-check workflow for GitHub pushes and pull requests.
 - Locale-aware Ukrainian/English labels for the core admin interface (Ukrainian when the WordPress locale is Ukrainian; English otherwise).
 - Capability checks, AJAX nonce checks and responsive admin styles.
@@ -38,7 +40,7 @@ The following original requirements remain open:
 - Automatic duplicate merging across attachment references. Current SHA-256 scan finds exact duplicates and offers to move candidates to WordPress Trash; it does not automatically merge references.
 - Final translation QA for every edge-case notice, updater screen and third-party integration.
 - Freemius SDK licensing and PRO gating. No license activation is currently required or implemented.
-- Marketing package: final logo, banner, real admin screenshots, product-page copy and Facebook copy.
+- Real screenshots from a running WordPress test site. Current promotional admin visual is only a concept mockup and must not be presented as a real plugin screenshot.
 - Full compatibility testing against supported WordPress, WooCommerce, Elementor and popular themes.
 
 ## Safety
