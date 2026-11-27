@@ -88,7 +88,9 @@ final class UAMM_Physical_Folders {
         if (!$slug) wp_send_json_error(array('message' => __('Некоректна назва папки.', 'ua-mediamanager')));
         $term = wp_insert_term($name, UA_MediaManager::TAX, array('parent' => $parent));
         if (is_wp_error($term)) wp_send_json_error(array('message' => $term->get_error_message()));
-        $relative = self::safe_relative($parent_path . '/' . $slug);
+        $created_term = get_term((int)$term['term_id'], UA_MediaManager::TAX);
+        $actual_slug = ($created_term && !is_wp_error($created_term)) ? $created_term->slug : $slug;
+        $relative = self::safe_relative($parent_path . '/' . $actual_slug);
         list($u, $root) = self::upload_paths();
         $absolute = $relative ? $root . '/' . $relative : '';
         if (!$relative || !wp_mkdir_p($absolute)) {
