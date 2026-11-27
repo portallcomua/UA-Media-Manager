@@ -159,6 +159,8 @@ final class UAMM_Physical_Folders {
             $source = get_attached_file($id);
             $meta = wp_get_attachment_metadata($id);
             if (!$source || !is_file($source) || !is_array($meta)) { $failed++; continue; }
+            $real_source = realpath($source);
+            if (!$real_source || strpos(wp_normalize_path($real_source), $root . '/') !== 0) { $failed++; continue; }
             $source_dir = dirname($source);
             $dest_dir = $destination[1];
             $files = array();
