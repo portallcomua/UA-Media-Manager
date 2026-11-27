@@ -14,7 +14,7 @@ final class UAMM_I18n {
     public static function translate($translation, $text, $domain) {
         if ($domain !== 'ua-mediamanager' || self::is_ukrainian()) return $translation;
         $map = array(
-            'Папки медіа' => 'Media folders', 'Папка' => 'Folder',
+            'Папки медіа' => 'Media folders', 'Папки' => 'Folders', 'Папка' => 'Folder',
             'Медіабібліотека' => 'Media library', 'Карантин' => 'Quarantine',
             'Налаштування' => 'Settings', 'Недостатньо прав.' => 'Insufficient permissions.',
             'Вкажіть назву папки.' => 'Enter a folder name.', 'Створити' => 'Create',
@@ -155,6 +155,8 @@ final class UAMM_I18n {
             'working' => $uk ? 'Обробка…' : 'Working…',
             'scanUnused' => $uk ? 'Знайти можливі невикористовувані' : 'Find possible unused files',
             'scanError' => $uk ? 'Помилка сканування' : 'Scan failed',
+            'error' => $uk ? 'Помилка' : 'Error',
+            'requestError' => $uk ? 'Помилка запиту.' : 'Request failed.',
             'selectFilesFolder' => $uk ? 'Оберіть файли та папку.' : 'Select files and a folder.',
             'moveError' => $uk ? 'Помилка' : 'Error',
             'optimizerUnavailable' => $uk ? 'Статус недоступний' : 'Status unavailable',
