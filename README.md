@@ -16,6 +16,7 @@ Branch archive: https://github.com/portallcomua/UA-Media-Manager/archive/refs/he
 - Media grid with preview, search, pagination and sorting by title, MIME type and date.
 - Hierarchical physical folders created under `wp-content/uploads/uamm/`.
 - Bulk physical relocation of attachment originals and known generated image sizes into selected folders.
+- Physical file and folder renaming, including known generated image sizes and descendant folder paths.
 - Updates `_wp_attached_file` and WordPress attachment metadata; rewrites matching URLs in post content, post meta and options while preserving serialized values.
 - Quarantine via WordPress Trash, with restore and permanent delete actions.
 - ZIP download of the uploads directory streamed to the browser; the temporary archive is removed after the response.
@@ -29,7 +30,7 @@ Branch archive: https://github.com/portallcomua/UA-Media-Manager/archive/refs/he
 ## Not yet implemented — do not treat as finished
 The following original requirements remain open:
 - Preset folder templates for `images/blog`, `WooCommerce/images`, `WooCommerce/category` and plugin-specific trees.
-- File rename and folder rename operations with reference rewriting.
+- Complete preset folder templates for standard WordPress/WooCommerce/plugin folder layouts.
 - A full transactional rollback for database write failures and third-party offload/CDN integrations. Physical move currently rolls back filesystem changes if a file collision/move error occurs, but database and third-party custom references still require broader compatibility testing.
 - Complete ZIP-to-media-library import on a fresh database. ZIP restore currently restores files and reconnects only matching attachment records already present in Trash; it is not a full WordPress site backup.
 - Reliable unused-media scanner covering page builders, widgets, theme options, WooCommerce, custom fields, CSS and external/plugin storage. Current scan is heuristic only.
