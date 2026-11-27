@@ -28,7 +28,7 @@ final class UAMM_Archive_Restore {
         $restored = absint($_GET['uamm_restored']);
         $skipped = absint($_GET['uamm_skipped'] ?? 0);
         $untrashed = absint($_GET['uamm_untrashed'] ?? 0);
-        $errors = absint($_GET['uamm_errors'] ?? 0);
+        $errors = absint($_GET['uamm_errors'] ?? 0);\n        $imported = absint($_GET['uamm_imported'] ?? 0);
         echo '<div class="notice notice-success"><p>' . esc_html(sprintf(
             __('Відновлення завершено. Файлів додано: %1$d; пропущено через наявні файли: %2$d; вкладень повернуто з кошика: %3$d; помилок: %4$d.', 'ua-mediamanager'),
             $restored, $skipped, $untrashed, $errors
@@ -135,6 +135,32 @@ final class UAMM_Archive_Restore {
                 continue;
             }
             $restored++;
+            $file_type = wp_check_filetype($target);
+            $is_generated_size = preg_match('/-\\d+x\\d+\\.(jpe?g|png|gif|webp)$/i', basename($target));
+            if (!empty($file_type['type']) && !$is_generated_size) {
+                $relative_path = ltrim(str_replace(wp_normalize_path($root), '', wp_normalize_path($target)), '/');
+                $exists = get_posts(array(
+                    'post_type' => 'attachment',
+                    'post_status' => 'any',
+                    'numberposts' => 1,
+                    'fields' => 'ids',
+                    'meta_key' => '_wp_attached_file',
+                    'meta_value' => $relative_path,
+                ));
+                if (!$exists) {
+                    $attachment_id = wp_insert_attachment(array(
+                        'post_mime_type' => $file_type['type'],
+                        'post_title' => sanitize_text_field(pathinfo(basename($target), PATHINFO_FILENAME)),
+                        'post_status' => 'inherit',
+                    ), $target);
+                    if ($attachment_id && !is_wp_error($attachment_id)) {
+                        require_once ABSPATH . 'wp-admin/includes/image.php';
+                        $attachment_meta = wp_generate_attachment_metadata($attachment_id, $target);
+                        if (is_array($attachment_meta)) wp_update_attachment_metadata($attachment_id, $attachment_meta);
+                        $imported++;
+                    }
+                }
+            }
         }
         $zip->close();
 
@@ -159,7 +185,7 @@ final class UAMM_Archive_Restore {
             'page' => 'ua-mediamanager-quarantine',
             'uamm_restored' => $restored,
             'uamm_skipped' => $skipped,
-            'uamm_untrashed' => $untrashed,
+            'uamm_untrashed' => $untrashed,\n            'uamm_imported' => $imported,
             'uamm_errors' => $errors,
         ), admin_url('admin.php'));
         wp_safe_redirect($url);
