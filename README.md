@@ -29,8 +29,7 @@ Branch archive: https://github.com/portallcomua/UA-Media-Manager/archive/refs/he
 
 ## Not yet implemented — do not treat as finished
 The following original requirements remain open:
-- Preset folder templates for `images/blog`, `WooCommerce/images`, `WooCommerce/category` and plugin-specific trees.
-- Complete preset folder templates for standard WordPress/WooCommerce/plugin folder layouts.
+- One-click preset folder templates for `images/blog`, `WooCommerce/images`, `WooCommerce/category` and plugin-specific trees.
 - A full transactional rollback for database write failures and third-party offload/CDN integrations. Physical move currently rolls back filesystem changes if a file collision/move error occurs, but database and third-party custom references still require broader compatibility testing.
 - Complete ZIP-to-media-library import on a fresh database. ZIP restore currently restores files and reconnects only matching attachment records already present in Trash; it is not a full WordPress site backup.
 - Reliable unused-media scanner covering page builders, widgets, theme options, WooCommerce, custom fields, CSS and external/plugin storage. Current scan is heuristic only.
