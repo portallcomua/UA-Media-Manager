@@ -130,7 +130,6 @@ final class UAMM_I18n {
             'Папку створено. Оновіть сторінку.' => 'Folder created. Refresh the page.',
             'Не переміщує файли фізично та не змінює URL.' => 'Does not physically move files or change URLs.',
         );
-        );
         return isset($map[$text]) ? $map[$text] : $translation;
     }
 
