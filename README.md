@@ -14,7 +14,9 @@ Branch archive: https://github.com/portallcomua/UA-Media-Manager/archive/refs/he
 ## Implemented in this development branch
 - Media dashboard with attachment count and uploads disk usage.
 - Media grid with preview, search, pagination and sorting by title, MIME type and date.
-- WordPress taxonomy-based folder labels and bulk assignment. These folders are currently virtual.
+- Hierarchical physical folders created under `wp-content/uploads/uamm/`.
+- Bulk physical relocation of attachment originals and known generated image sizes into selected folders.
+- Updates `_wp_attached_file` and WordPress attachment metadata; rewrites matching URLs in post content, post meta and options while preserving serialized values.
 - Quarantine via WordPress Trash, with restore and permanent delete actions.
 - ZIP download of the uploads directory streamed to the browser; the temporary archive is removed after the response.
 - ZIP download of files in the WordPress media trash.
@@ -26,8 +28,9 @@ Branch archive: https://github.com/portallcomua/UA-Media-Manager/archive/refs/he
 
 ## Not yet implemented — do not treat as finished
 The following original requirements remain open:
-- Physical folder creation and hierarchical organization such as `images/blog`, `WooCommerce/images` and `WooCommerce/category`.
-- Physical file move/rename with safe database URL/reference rewriting and rollback.
+- Preset folder templates for `images/blog`, `WooCommerce/images`, `WooCommerce/category` and plugin-specific trees.
+- File rename and folder rename operations with reference rewriting.
+- A full transactional rollback for database write failures and third-party offload/CDN integrations. Physical move currently rolls back filesystem changes if a file collision/move error occurs, but database and third-party custom references still require broader compatibility testing.
 - Complete ZIP-to-media-library import on a fresh database. ZIP restore currently restores files and reconnects only matching attachment records already present in Trash; it is not a full WordPress site backup.
 - Reliable unused-media scanner covering page builders, widgets, theme options, WooCommerce, custom fields, CSS and external/plugin storage. Current scan is heuristic only.
 - Duplicate detection by file hash and safe duplicate merge/removal.
