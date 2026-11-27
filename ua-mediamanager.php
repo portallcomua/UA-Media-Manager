@@ -259,7 +259,19 @@ final class UA_MediaManager {
         $this->require_capability('delete_posts'); check_admin_referer('uamm_quarantine_zip');
         $q=get_posts(array('post_type'=>'attachment','post_status'=>'trash','numberposts'=>-1));
         $u=wp_upload_dir(); $root=$u['basedir']; $files=array();
-        foreach($q as $p) { $path=get_attached_file($p->ID); if($path && is_file($path)) $files[]=$path; $m=wp_get_attachment_metadata($p->ID); if(!empty($m['sizes']) && $path) foreach($m['sizes'] as $s) { $candidate=path_join(dirname($path),$s['file']); if(is_file($candidate)) $files[]=$candidate; } }
+        foreach($q as $p) {
+            $path=get_attached_file($p->ID);
+            if($path && is_file($path)) $files[]=$path;
+            $m=wp_get_attachment_metadata($p->ID);
+            if($path && is_array($m)) {
+                foreach(array('sizes','backup_sizes') as $group) {
+                    if(!empty($m[$group]) && is_array($m[$group])) foreach($m[$group] as $s) {
+                        if(!empty($s['file'])) { $candidate=path_join(dirname($path),basename($s['file'])); if(is_file($candidate)) $files[]=$candidate; }
+                    }
+                }
+                if(!empty($m['original_image'])) { $candidate=path_join(dirname($path),basename($m['original_image'])); if(is_file($candidate)) $files[]=$candidate; }
+            }
+        }
         $this->stream_zip(array_unique($files),'ua-media-quarantine',$root);
     }
 
