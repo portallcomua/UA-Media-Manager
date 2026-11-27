@@ -21,9 +21,15 @@ final class UAMM_Physical_Folders {
     public static function ajax_action() {
         check_ajax_referer(UA_MediaManager::NONCE, 'nonce');
         $action = sanitize_key($_POST['do'] ?? '');
-        if (!in_array($action, array('create_folder', 'move', 'rename', 'rename_folder', 'create_templates'), true)) {
+        if (!in_array($action, array('create_folder', 'move', 'rename', 'rename_folder', 'create_templates', 'optimize_start', 'optimize_step', 'optimizer_status'), true)) {
             UA_MediaManager::instance()->ajax_action();
             return;
+        }
+        if (in_array($action, array('optimize_start', 'optimize_step', 'optimizer_status'), true)) {
+            if (!current_user_can('manage_options')) wp_send_json_error(array('message' => __('Потрібні права адміністратора.', 'ua-mediamanager')), 403);
+            if ($action === 'optimizer_status') self::optimizer_status();
+            if ($action === 'optimize_start') self::optimize_start();
+            self::optimize_step();
         }
         if (!current_user_can('upload_files')) {
             wp_send_json_error(array('message' => __('Недостатньо прав.', 'ua-mediamanager')), 403);
@@ -73,6 +79,125 @@ final class UAMM_Physical_Folders {
         return array($relative, wp_normalize_path($real));
     }
 
+
+
+    private static function optimizer_tools() {
+        $disabled = array_map('trim', explode(',', (string)ini_get('disable_functions')));
+        if (!function_exists('exec') || in_array('exec', $disabled, true)) return array();
+        $tools = array();
+        foreach (array('jpegoptim', 'optipng', 'gifsicle') as $tool) {
+            $output = array();
+            $code = 1;
+            @exec('command -v ' . escapeshellarg($tool) . ' 2>/dev/null', $output, $code);
+            if ($code === 0 && !empty($output[0])) $tools[$tool] = trim($output[0]);
+        }
+        return $tools;
+    }
+
+    private static function optimizer_status() {
+        $tools = self::optimizer_tools();
+        wp_send_json_success(array(
+            'tools' => array_keys($tools),
+            'message' => $tools
+                ? __('Доступні lossless-інструменти. JPEG/PNG/GIF будуть оптимізуватися без зниження якості; інші формати буде пропущено.', 'ua-mediamanager')
+                : __('На сервері не знайдено jpegoptim, optipng або gifsicle, або PHP exec вимкнено. Без цих інструментів безпечна lossless-оптимізація недоступна.', 'ua-mediamanager')
+        ));
+    }
+
+    private static function optimize_start() {
+        $tools = self::optimizer_tools();
+        if (!$tools) wp_send_json_error(array('message' => __('Немає доступних lossless-інструментів на сервері. Файли не змінено.', 'ua-mediamanager')));
+        $uploads = wp_upload_dir();
+        $attachments = get_posts(array('post_type' => 'attachment', 'post_status' => 'inherit', 'numberposts' => 2000, 'fields' => 'ids', 'orderby' => 'ID', 'order' => 'ASC'));
+        $queue = array();
+        foreach ($attachments as $id) {
+            $main = get_attached_file($id);
+            if ($main && is_file($main)) $queue[] = $main;
+            $meta = wp_get_attachment_metadata($id);
+            if (is_array($meta) && $main) {
+                foreach ($meta['sizes'] ?? array() as $size) {
+                    if (!empty($size['file'])) $queue[] = dirname($main) . '/' . basename($size['file']);
+                }
+                foreach ($meta['backup_sizes'] ?? array() as $size) {
+                    if (!empty($size['file'])) $queue[] = dirname($main) . '/' . basename($size['file']);
+                }
+            }
+        }
+        $queue = array_values(array_unique($queue));
+        $key = 'uamm_opt_queue_' . get_current_user_id();
+        set_transient($key, $queue, 2 * HOUR_IN_SECONDS);
+        $total_bytes = 0;
+        foreach ($queue as $file) if (is_file($file)) $total_bytes += (int)filesize($file);
+        set_transient($key . '_stats', array('total' => count($queue), 'bytes_before' => $total_bytes, 'saved' => 0, 'processed' => 0), 2 * HOUR_IN_SECONDS);
+        wp_send_json_success(array('total' => count($queue), 'bytes_before' => $total_bytes, 'tools' => array_keys($tools), 'message' => __('Підготовлено пакет оптимізації. Обробка виконується невеликими порціями.', 'ua-mediamanager')));
+    }
+
+    private static function optimize_step() {
+        $tools = self::optimizer_tools();
+        if (!$tools) wp_send_json_error(array('message' => __('Lossless-інструменти більше недоступні.', 'ua-mediamanager')));
+        $key = 'uamm_opt_queue_' . get_current_user_id();
+        $queue = get_transient($key);
+        $stats = get_transient($key . '_stats');
+        if (!is_array($queue) || !is_array($stats)) wp_send_json_error(array('message' => __('Пакет оптимізації не знайдено. Запустіть його знову.', 'ua-mediamanager')));
+        $offset = absint($_POST['offset'] ?? 0);
+        $limit = 5;
+        $uploads = wp_upload_dir();
+        $root = realpath($uploads['basedir']);
+        $end = min(count($queue), $offset + $limit);
+        for ($i = $offset; $i < $end; $i++) {
+            $file = $queue[$i];
+            $real = is_file($file) ? realpath($file) : false;
+            if (!$real || !$root || strpos(wp_normalize_path($real), wp_normalize_path($root) . '/') !== 0) {
+                $stats['processed']++;
+                continue;
+            }
+            $ext = strtolower(pathinfo($real, PATHINFO_EXTENSION));
+            $tool = ($ext === 'jpg' || $ext === 'jpeg') ? 'jpegoptim' : (($ext === 'png') ? 'optipng' : (($ext === 'gif') ? 'gifsicle' : ''));
+            if (!$tool || empty($tools[$tool])) {
+                $stats['processed']++;
+                continue;
+            }
+            $before = (int)filesize($real);
+            $backup = @tempnam(dirname($real), '.uamm-backup-');
+            if (!$backup || !@copy($real, $backup)) {
+                if ($backup) @unlink($backup);
+                $stats['processed']++;
+                continue;
+            }
+            $escaped = escapeshellarg($real);
+            if ($tool === 'jpegoptim') $command = escapeshellarg($tools[$tool]) . ' --quiet --keep-all --all-progressive ' . $escaped;
+            elseif ($tool === 'optipng') $command = escapeshellarg($tools[$tool]) . ' -quiet -o2 ' . $escaped;
+            else $command = escapeshellarg($tools[$tool]) . ' -O2 -b ' . $escaped;
+            $output = array();
+            $code = 1;
+            @exec($command . ' 2>&1', $output, $code);
+            clearstatcache(true, $real);
+            $after = is_file($real) ? (int)filesize($real) : $before;
+            if ($code === 0 && $after > 0 && $after < $before) {
+                $stats['saved'] += ($before - $after);
+                @unlink($backup);
+            } else {
+                @copy($backup, $real);
+                @unlink($backup);
+            }
+            $stats['processed']++;
+        }
+        set_transient($key . '_stats', $stats, 2 * HOUR_IN_SECONDS);
+        $done = ($end >= count($queue));
+        if ($done) {
+            delete_transient($key);
+            delete_transient($key . '_stats');
+        }
+        wp_send_json_success(array(
+            'processed' => $stats['processed'],
+            'total' => count($queue),
+            'saved' => $stats['saved'],
+            'next' => $end,
+            'done' => $done,
+            'percent' => count($queue) ? (int)floor($end / count($queue) * 100) : 100,
+            'message' => $done ? __('Оптимізацію завершено. Файли без підтримуваного формату пропущено.', 'ua-mediamanager') : __('Оптимізація триває…', 'ua-mediamanager')
+        ));
+    }
 
     private static function create_templates() {
         $paths = array('images/blog', 'WooCommerce/images', 'WooCommerce/category', 'Plugins', 'Elementor', 'Theme');
