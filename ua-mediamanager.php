@@ -127,8 +127,8 @@ final class UA_MediaManager {
           </div>
           <div class="uamm-layout"><aside class="uamm-sidebar"><h2><?php esc_html_e('Папки', 'ua-mediamanager'); ?></h2><a class="uamm-folder <?php echo empty($_GET['folder'])?'is-active':''; ?>" href="<?php echo esc_url(admin_url('admin.php?page=ua-mediamanager')); ?>">▦ <?php esc_html_e('Усі файли', 'ua-mediamanager'); ?></a>
             <?php foreach ($folders as $folder): ?><a class="uamm-folder <?php echo absint($_GET['folder'] ?? 0)===$folder->term_id?'is-active':''; ?>" href="<?php echo esc_url(add_query_arg(array('page'=>'ua-mediamanager','folder'=>$folder->term_id),admin_url('admin.php'))); ?>">📁 <?php echo esc_html($folder->name); ?> <em><?php echo esc_html($folder->count); ?></em></a><?php endforeach; ?>
-            <div class="uamm-new-folder"><input type="text" id="uamm-folder-name" placeholder="<?php esc_attr_e('Нова папка', 'ua-mediamanager'); ?>"><button class="button" id="uamm-create-folder"><?php esc_html_e('Створити', 'ua-mediamanager'); ?></button></div>
-            <p class="description"><?php esc_html_e('Папки в цій версії віртуальні: вони не змінюють URL файлів і не ламають посилання на сайті.', 'ua-mediamanager'); ?></p>
+            <div class="uamm-new-folder"><input type="text" id="uamm-folder-name" placeholder="<?php esc_attr_e('Нова папка', 'ua-mediamanager'); ?>"><select id="uamm-folder-parent"><option value="0"><?php esc_html_e('Коренева папка', 'ua-mediamanager'); ?></option><?php foreach ($folders as $parent_folder): ?><option value="<?php echo esc_attr($parent_folder->term_id); ?>"><?php echo esc_html($parent_folder->name); ?></option><?php endforeach; ?></select><button class="button" id="uamm-create-folder"><?php esc_html_e('Створити', 'ua-mediamanager'); ?></button></div>
+            <p class="description"><?php esc_html_e('Папки створюються фізично в uploads. Переміщення файлів оновлює метадані WordPress і знайдені URL у вмісті, метаполях та налаштуваннях.', 'ua-mediamanager'); ?></p>
           </aside><main class="uamm-main">
             <div class="uamm-list-actions"><label><input type="checkbox" id="uamm-select-all"> <?php esc_html_e('Вибрати все на сторінці', 'ua-mediamanager'); ?></label><button class="button" data-action="quarantine"><?php esc_html_e('До карантину', 'ua-mediamanager'); ?></button><select id="uamm-move-folder"><option value=""><?php esc_html_e('Перемістити до папки…', 'ua-mediamanager'); ?></option><?php foreach($folders as $folder): ?><option value="<?php echo esc_attr($folder->term_id); ?>"><?php echo esc_html($folder->name); ?></option><?php endforeach; ?></select><button class="button" id="uamm-move"><?php esc_html_e('Перемістити', 'ua-mediamanager'); ?></button></div>
             <div class="uamm-grid">
@@ -189,7 +189,7 @@ final class UA_MediaManager {
             $this->require_ajax_cap('upload_files'); $folder=absint($_POST['folder'] ?? 0);
             if (!$folder || !term_exists($folder,self::TAX)) wp_send_json_error(array('message'=>__('Оберіть папку.','ua-mediamanager')));
             foreach($ids as $id) if (get_post_type($id)==='attachment') wp_set_object_terms($id,$folder,self::TAX,false);
-            wp_send_json_success(array('message'=>__('Файли додано до папки. Фізичні шляхи не змінювалися.','ua-mediamanager')));
+            wp_send_json_success(array('message'=>__('Файли фізично переміщено до папки; посилання оновлено.','ua-mediamanager')));
         }
         if ($action==='quarantine') {
             $this->require_ajax_cap('delete_posts'); $done=0;
