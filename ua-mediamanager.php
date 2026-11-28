@@ -3,7 +3,7 @@
  * Plugin Name: UA MediaManager
  * Plugin URI: https://github.com/portallcomua/UA-Media-Manager
  * Description: Зручний менеджер медіабібліотеки WordPress: папки, резервні копії, карантин, пошук невикористовуваних файлів та безпечне керування зображеннями.
- * Version: 2.0.0
+ * Version: 2.0.1
  * Author: UA Server
  * Text Domain: ua-mediamanager
  * Domain Path: /languages
@@ -11,7 +11,7 @@
  * Requires PHP: 7.4
  */
 if (!defined('ABSPATH')) { exit; }
-define('UAMM_VERSION', '2.0.0');
+define('UAMM_VERSION', '2.0.1');
 define('UAMM_FILE', __FILE__);
 define('UAMM_DIR', plugin_dir_path(__FILE__));
 define('UAMM_URL', plugin_dir_url(__FILE__));
@@ -111,7 +111,7 @@ final class UA_MediaManager {
         $items = new WP_Query($args);
         ?>
         <div class="wrap uamm-wrap">
-          <header class="uamm-header"><div><span class="uamm-kicker">UA SERVER · MEDIA TOOLS</span><h1>UA MediaManager <small>2.0.0</small></h1><p><?php esc_html_e('Керуйте файлами, папками та резервними копіями в одному місці.', 'ua-mediamanager'); ?></p></div>
+          <header class="uamm-header"><div><span class="uamm-kicker">UA SERVER · MEDIA TOOLS</span><h1>UA MediaManager <small><?php echo esc_html(UAMM_VERSION); ?></small></h1><p><?php esc_html_e('Керуйте файлами, папками та резервними копіями в одному місці.', 'ua-mediamanager'); ?></p></div>
           <div class="uamm-header-actions"><?php if (current_user_can('manage_options')): ?><a class="button button-secondary" href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=uamm_backup'),'uamm_backup')); ?>">↓ <?php esc_html_e('Завантажити всю бібліотеку', 'ua-mediamanager'); ?></a><?php endif; ?><a class="button button-primary" href="<?php echo esc_url(admin_url('admin.php?page=ua-mediamanager-settings')); ?>"><?php esc_html_e('Налаштування', 'ua-mediamanager'); ?></a></div></header>
           <section class="uamm-stats">
             <article><span><?php esc_html_e('Файлів у медіатеці', 'ua-mediamanager'); ?></span><strong><?php echo esc_html(number_format_i18n($stats['count'])); ?></strong></article>
