@@ -46,7 +46,7 @@ final class UAMM_I18n {
             'Придбати PRO через Freemius' => 'Purchase PRO via Freemius',
             'Налаштувати оплату в UA Project Manager' => 'Configure payments in UA Project Manager',
             'Після оплати доступ активується тільки після перевірки підписаного Freemius webhook у Pay Box. Повернення з Checkout саме по собі не вмикає PRO.' => 'After payment, access is activated only after Pay Box verifies the signed Freemius webhook. Returning from Checkout does not activate PRO by itself.',
-            'Для керування Freemius оплатою підключіть UA Project Manager. Основні функції медіаменеджера працюють і без нього.' => 'Connect UA Project Manager to manage Freemius payments. Core media manager features work without it.'
+            'Для керування Freemius оплатою підключіть UA Project Manager. Основні функції медіаменеджера працюють і без нього.' => 'Connect UA Project Manager to manage Freemius payments. Core media manager features work without it.',
             'Не переміщує файли фізично та не змінює URL.' => 'Does not physically move files or change URLs.',
             'Зберегти' => 'Save', 'Перевірка невикористовуваних файлів' => 'Unused media scan',
             'Знайти можливі невикористовувані' => 'Find possible unused files',
