@@ -37,7 +37,6 @@ final class UA_MediaManager {
         add_action('admin_enqueue_scripts', array($this, 'assets'));
         add_action('admin_post_uamm_backup', array($this, 'download_backup'));
         add_action('admin_post_uamm_quarantine_zip', array($this, 'download_quarantine'));
-        add_action('admin_post_uamm_restore', array($this, 'restore_upload'));
         add_action('wp_ajax_uamm_action', array($this, 'ajax_action'));
         add_filter('plugin_action_links_' . plugin_basename(UAMM_FILE), array($this, 'plugin_links'));
     }
@@ -314,9 +313,5 @@ final class UA_MediaManager {
         $this->stream_zip(array_unique($files),'ua-media-quarantine',$root);
     }
 
-    public function restore_upload() {
-        $this->require_capability('manage_options');
-        wp_die(esc_html__('Відновлення ZIP-архіву буде доступне в наступному етапі після реалізації перевірки структури, безпечного розпакування та зіставлення вкладень. Поки що використовуйте відновлення файлів через FTP або резервну копію хостингу.','ua-mediamanager'));
-    }
 }
 UA_MediaManager::instance();
