@@ -19,6 +19,7 @@ require_once UAMM_DIR . 'includes/class-uamm-i18n.php';
 require_once UAMM_DIR . 'includes/class-uamm-archive-restore.php';
 require_once UAMM_DIR . 'includes/class-uamm-github-updater.php';
 require_once UAMM_DIR . 'includes/class-uamm-physical-folders.php';
+require_once UAMM_DIR . 'includes/class-uamm-paybox.php';
 
 final class UA_MediaManager {
     const TAX = 'uamm_folder';
@@ -174,6 +175,7 @@ final class UA_MediaManager {
         <hr><h2><?php esc_html_e('Перевірка невикористовуваних файлів','ua-mediamanager'); ?></h2><p><?php esc_html_e('Сканер перевіряє вміст записів і метадані WordPress. Він не може достовірно прочитати всі нестандартні сховища сторонніх плагінів, тому результат є лише списком кандидатів для ручної перевірки.','ua-mediamanager'); ?></p><button class="button" id="uamm-scan-unused"><?php esc_html_e('Знайти можливі невикористовувані','ua-mediamanager'); ?></button><div id="uamm-scan-result"></div>
         <hr><h2><?php esc_html_e('Пошук дублікатів зображень','ua-mediamanager'); ?></h2><p><?php esc_html_e('Порівняння виконується за SHA-256 вмісту файлів. Перший файл у групі вважається основним, інші показуються як кандидати. Нічого не видаляється автоматично.','ua-mediamanager'); ?></p><button class="button" id="uamm-scan-duplicates"><?php esc_html_e('Знайти дублікати','ua-mediamanager'); ?></button><div id="uamm-duplicates-result"></div>
         <hr><h2><?php esc_html_e('Lossless-оптимізація зображень','ua-mediamanager'); ?></h2><p><?php esc_html_e('Використовуються системні jpegoptim, optipng та gifsicle, якщо вони доступні на сервері. Оптимізація не знижує якість; непідтримувані формати пропускаються. Перед запуском обов’язково завантажте ZIP-резервну копію uploads.','ua-mediamanager'); ?></p><p id="uamm-optimizer-status"><?php esc_html_e('Перевірка інструментів сервера…','ua-mediamanager'); ?></p><button class="button button-primary" id="uamm-optimize-start"><?php esc_html_e('Запустити lossless-оптимізацію','ua-mediamanager'); ?></button><div id="uamm-optimize-progress" hidden><div class="uamm-progress"><span id="uamm-progress-bar"></span></div><p id="uamm-progress-text"></p><p id="uamm-optimize-stats"></p></div></div><?php
+        do_action('uamm_settings_after');
     }
 
     public function ajax_action() {
