@@ -17,8 +17,8 @@ final class UAMM_PayBox {
     }
 
     public static function manager_available() {
-        return class_exists('\\UAPM\\PayBox\\UPB_Services')
-            && class_exists('\\UAPM\\PayBox\\UPB_Freemius');
+        return class_exists('\UAPM\PayBox\UPB_Services')
+            && class_exists('\UAPM\PayBox\UPB_Freemius');
     }
 
     public static function register_service() {
@@ -26,9 +26,9 @@ final class UAMM_PayBox {
             return;
         }
 
-        $service = \\UAPM\\PayBox\\UPB_Services::by_slug(self::SERVICE_SLUG);
-        if (!$service && function_exists('\\UAPM\\PayBox\\upb_register_service')) {
-            \\UAPM\\PayBox\\upb_register_service(
+        $service = \UAPM\PayBox\UPB_Services::by_slug(self::SERVICE_SLUG);
+        if (!$service && function_exists('\UAPM\PayBox\upb_register_service')) {
+            \UAPM\PayBox\upb_register_service(
                 self::SERVICE_SLUG,
                 'UA MediaManager',
                 array(
@@ -44,7 +44,7 @@ final class UAMM_PayBox {
         if (!self::manager_available()) {
             return null;
         }
-        return \\UAPM\\PayBox\\UPB_Services::by_slug(self::SERVICE_SLUG);
+        return \UAPM\PayBox\UPB_Services::by_slug(self::SERVICE_SLUG);
     }
 
     public static function is_pro($user_id = 0) {
@@ -60,14 +60,14 @@ final class UAMM_PayBox {
         if (!$service || empty($service['id']) || empty($service['enabled'])) {
             return false;
         }
-        return \\UAPM\\PayBox\\UPB_Freemius::is_email_active((int)$service['id'], $user->user_email);
+        return \UAPM\PayBox\UPB_Freemius::is_email_active((int)$service['id'], $user->user_email);
     }
 
     private static function checkout_url($service, $email) {
-        if (!$service || empty($service['enabled']) || !class_exists('\\UAPM\\PayBox\\UPB_Freemius')) {
+        if (!$service || empty($service['enabled']) || !class_exists('\UAPM\PayBox\UPB_Freemius')) {
             return '';
         }
-        $url = \\UAPM\\PayBox\\UPB_Freemius::checkout_url($service);
+        $url = \UAPM\PayBox\UPB_Freemius::checkout_url($service);
         if (!$url) {
             return '';
         }
