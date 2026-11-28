@@ -35,6 +35,7 @@ final class UAMM_I18n {
             'Автоматична класифікація' => 'Automatic classification',
             'Дозволити пропонувати папки за типом вкладення' => 'Suggest folders by attachment type',
             'Freemius / UA Project Manager' => 'Freemius / UA Project Manager',
+            'Обробка…' => 'Working…',
             'UA Project Manager із вбудованим Pay Box не активний. Встановіть або активуйте його, щоб керувати оплатою та ліцензіями централізовано.' => 'UA Project Manager with the integrated Pay Box is not active. Install or activate it to manage payments and licenses centrally.',
             'Не вдалося зареєструвати послугу UA MediaManager у Pay Box.' => 'Could not register UA MediaManager as a Pay Box service.',
             'Оплата та ключі Freemius налаштовуються тільки в UA Project Manager → Pay Box → Послуги. Секретні ключі не зберігаються в цьому плагіні.' => 'Freemius payments and keys are configured only in UA Project Manager → Pay Box → Services. Secret keys are not stored in this plugin.',
