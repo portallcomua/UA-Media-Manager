@@ -1,4 +1,4 @@
-# UA MediaManager 2.0.0 — development branch
+# UA MediaManager 2.0.1 — development branch
 
 WordPress media library manager by UA Server.
 
@@ -25,7 +25,7 @@ Branch archive: https://github.com/portallcomua/UA-Media-Manager/archive/refs/he
 - Correct AJAX routing for attachment rename, folder rename, standard-folder creation and physical moves.
 - Expanded unused-media candidate scan across post content, post metadata and WordPress options, including attachment parent checks. Results remain heuristic and require manual review.
 - When a restored file matches an attachment in WordPress Trash, the attachment is automatically untrashed.
-- Public GitHub Releases update check. Publish a versioned GitHub Release; preferably attach a correctly packaged `ua-mediamanager.zip` asset.
+- GitHub updater checks the latest public GitHub Release and installs its `ua-mediamanager.zip` asset. The `.github/workflows/release.yml` workflow builds this correctly structured ZIP and attaches it to a GitHub Release whenever a `v*` tag is pushed. Do not create a production tag until the release build has been tested.
 - Lossless batch optimization is available only when server binaries `jpegoptim`, `optipng` and/or `gifsicle` are installed and PHP `exec` is enabled. Supported JPEG/PNG/GIF files are processed in batches with a progress bar and before/after size summary; unsupported formats are skipped.
 - Brand assets in `assets/branding/logo.svg` and `assets/branding/banner.svg`.
 - Draft product-page and Facebook copy in Ukrainian and English under `marketing/`.
@@ -41,7 +41,7 @@ The following original requirements remain open:
 - Complete unused-media reference analysis for galleries that store only attachment IDs, all page-builder/widget/theme/CSS patterns, WooCommerce extensions and external/plugin storage. The current scan checks URLs and relative paths in WordPress content, post metadata and options, but remains heuristic.
 - Automatic duplicate merging across attachment references. Current SHA-256 scan finds exact duplicates and offers to move candidates to WordPress Trash; it does not automatically merge references.
 - Final translation QA for every edge-case notice, updater screen and third-party integration.
-- Freemius SDK licensing and PRO gating. No license activation is currently required or implemented.
+- Freemius is connected through UA Project Manager's embedded Pay Box (no Freemius SDK is bundled). The plugin registers the `ua-mediamanager` service there, displays the current account's PRO status, and links to its Pay Box service settings. Product ID, Plan ID, Checkout URL and Product Secret Key are configured centrally in UA Project Manager. Access is marked PRO only after Pay Box confirms the signed Freemius webhook. Feature-by-feature PRO gating and live webhook/payment testing still require configuration and verification on the user's site.
 - Real screenshots from a running WordPress test site. Current promotional admin visual is only a concept mockup and must not be presented as a real plugin screenshot.
 - Full compatibility testing against supported WordPress, WooCommerce, Elementor and popular themes.
 
@@ -52,3 +52,13 @@ Do not use this development build for bulk destructive operations on a productio
 - WordPress 6.2+
 - PHP 7.4+
 - PHP ZipArchive for ZIP backup and restore
+
+
+## UA Project Manager / Freemius setup
+1. Install and activate **UA Project Manager** with its embedded Pay Box module.
+2. Activate UA MediaManager. It registers a Pay Box license service with slug `ua-mediamanager`.
+3. In UA Project Manager open **Pay Box → Services**, edit **UA MediaManager**, and enter Freemius Product ID, Plan ID, Checkout URL (optional if generated), Product Secret Key, and API Bearer Token (optional, for price lookup).
+4. Enable the service and save it. Configure the Pay Box-generated webhook URL in Freemius for license events. Pay Box validates the signed webhook; this plugin never receives or stores the secret.
+5. In UA MediaManager → Settings, check the integration status and use the centrally managed checkout link.
+
+The updater uses the latest public GitHub Release. To publish a tested build, push a tag such as `v2.0.1`; the release workflow attaches `ua-mediamanager.zip`. The ZIP has a stable `ua-mediamanager/` plugin folder. The update mechanism cannot deliver a release until a tag/release has actually been published.
